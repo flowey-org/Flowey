@@ -74,6 +74,11 @@ function reverseTime() {
   isReverseOn.value = !isReverseOn.value;
   targetDate.value = new Date(nowTime.value - currentTime.value);
 }
+
+function stopGame() {
+  isReverseOn.value = false;
+  targetDate.value = new Date(nowTime.value);
+}
 </script>
 
 <template>
@@ -86,6 +91,7 @@ function reverseTime() {
     <option :value="inHours(72)">72h</option>
   </select>
   <button :disabled="isGameOn" @click="startGame">Start game</button>
+  <button :disabled="!isGameOn" @click="stopGame">Stop game</button>
   <button :disabled="!isGameOn" @click="reverseTime">
     {{ isReverseOn ? "Disable reverse": "Enable reverse" }}
   </button>
