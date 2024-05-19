@@ -1,9 +1,7 @@
-<template>
-  <p>Hello there!</p>
-</template>
+<script setup lang="ts">
+import Counter from "@/Counter.vue";
+</script>
 
-<style scoped>
-p {
-  color: coral;
-}
-</style>
+<template>
+  <Counter />
+</template>

@@ -82,5 +82,14 @@ export default [
       },
     },
   },
-  ...pluginVue.configs["flat/recommended"],
+  ...[
+    ...pluginVue.configs["flat/recommended"],
+    {
+      rules: {
+        "vue/max-attributes-per-line": "off",
+        "vue/multi-word-component-names": "off",
+        "vue/singleline-html-element-content-newline": "off",
+      },
+    },
+  ],
 ];
