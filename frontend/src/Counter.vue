@@ -4,9 +4,19 @@ import { computed, ref, watchEffect } from "vue";
 const targetDate = ref(new Date());
 const nowTime = ref(Date.now());
 const isReverseOn = ref(false);
+const maxTime = ref(inHours(24));
+
+function inHours(hours: number) {
+  return 1000 * 60 * 60 * hours;
+}
+
+const currentTime = computed(() => {
+  const difference = targetDate.value.getTime() - nowTime.value;
+  return Math.sign(difference) * Math.min(Math.abs(difference), maxTime.value);
+});
 
 const isGameOn = computed(() => {
-  return Math.abs(targetDate.value.getTime() - nowTime.value) > 500;
+  return Math.abs(currentTime.value) > 500;
 });
 
 function pad(number: number): string {
@@ -14,7 +24,7 @@ function pad(number: number): string {
 }
 
 const counter = computed(() => {
-  const elapsedMilliseconds = Math.abs(targetDate.value.getTime() - nowTime.value);
+  const elapsedMilliseconds = Math.abs(currentTime.value);
   const elapsedSeconds = Math.round(elapsedMilliseconds / 1000);
   const hours = Math.floor(elapsedSeconds / 3600);
   const minutes = Math.floor(elapsedSeconds % 3600 / 60);
@@ -57,18 +67,24 @@ watchEffect(() => {
 
 function startGame() {
   nowTime.value = Date.now();
-  targetDate.value = new Date(nowTime.value + 1000 * 10);
+  targetDate.value = new Date(nowTime.value + maxTime.value);
 }
 
 function reverseTime() {
   isReverseOn.value = !isReverseOn.value;
-  const difference = targetDate.value.getTime() - nowTime.value;
-  targetDate.value = new Date(nowTime.value - difference);
+  targetDate.value = new Date(nowTime.value - currentTime.value);
 }
 </script>
 
 <template>
   <time :datetime="counter" class="counter">{{ counter }}</time>
+  <br>
+  <label for="maxTimeSelect">Start with</label>
+  <select id="maxTimeSelect" v-model="maxTime" :disabled="isGameOn">
+    <option :value="inHours(24)">24h</option>
+    <option :value="inHours(48)">48h</option>
+    <option :value="inHours(72)">72h</option>
+  </select>
   <button :disabled="isGameOn" @click="startGame">Start game</button>
   <button :disabled="!isGameOn" @click="reverseTime">
     {{ isReverseOn ? "Disable reverse": "Enable reverse" }}
