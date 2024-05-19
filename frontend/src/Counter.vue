@@ -3,9 +3,10 @@ import { computed, ref, watchEffect } from "vue";
 
 const targetDate = ref(new Date());
 const nowTime = ref(Date.now());
+const isReverseOn = ref(false);
 
 const isGameOn = computed(() => {
-  return targetDate.value.getTime() - nowTime.value > 500;
+  return Math.abs(targetDate.value.getTime() - nowTime.value) > 500;
 });
 
 function pad(number: number): string {
@@ -58,9 +59,18 @@ function startGame() {
   nowTime.value = Date.now();
   targetDate.value = new Date(nowTime.value + 1000 * 10);
 }
+
+function reverseTime() {
+  isReverseOn.value = !isReverseOn.value;
+  const difference = targetDate.value.getTime() - nowTime.value;
+  targetDate.value = new Date(nowTime.value - difference);
+}
 </script>
 
 <template>
   <time :datetime="counter" class="counter">{{ counter }}</time>
   <button :disabled="isGameOn" @click="startGame">Start game</button>
+  <button :disabled="!isGameOn" @click="reverseTime">
+    {{ isReverseOn ? "Disable reverse": "Enable reverse" }}
+  </button>
 </template>
