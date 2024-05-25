@@ -20,6 +20,7 @@ export default [
         ...pluginTypeScript.configs.stylisticTypeChecked,
       ],
       rules: {
+        "max-len": ["error", { code: 120 }],
         "sort-imports": ["error", { ignoreDeclarationSort: true }],
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/restrict-template-expressions": ["error", {

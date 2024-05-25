@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 
-const targetDate = ref(new Date());
-const nowTime = ref(Date.now());
-const isReverseOn = ref(false);
-const maxTime = ref(inHours(24));
+import state from "@/state";
+import { hoursToMilliseconds } from "@/utils";
 
-function inHours(hours: number) {
-  return 1000 * 60 * 60 * hours;
-}
+const nowTime = ref(Date.now());
 
 const currentTime = computed(() => {
-  const difference = targetDate.value.getTime() - nowTime.value;
-  return Math.sign(difference) * Math.min(Math.abs(difference), maxTime.value);
+  const difference = state.targetDate.value.getTime() - nowTime.value;
+  return Math.sign(difference) * Math.min(Math.abs(difference), state.maxTime.value);
 });
 
 const isGameOn = computed(() => {
-  return Math.abs(currentTime.value) > 500;
+  return state.isReverseOn.value || currentTime.value > 500;
 });
 
 function pad(number: number): string {
@@ -24,6 +20,9 @@ function pad(number: number): string {
 }
 
 const counter = computed(() => {
+  if (!isGameOn.value) {
+    return "00:00:00";
+  }
   const elapsedMilliseconds = Math.abs(currentTime.value);
   const elapsedSeconds = Math.round(elapsedMilliseconds / 1000);
   const hours = Math.floor(elapsedSeconds / 3600);
@@ -67,17 +66,17 @@ watchEffect(() => {
 
 function startGame() {
   nowTime.value = Date.now();
-  targetDate.value = new Date(nowTime.value + maxTime.value);
+  state.targetDate.value = new Date(nowTime.value + state.maxTime.value);
 }
 
 function reverseTime() {
-  isReverseOn.value = !isReverseOn.value;
-  targetDate.value = new Date(nowTime.value - currentTime.value);
+  state.isReverseOn.value = !state.isReverseOn.value;
+  state.targetDate.value = new Date(nowTime.value - currentTime.value);
 }
 
 function stopGame() {
-  isReverseOn.value = false;
-  targetDate.value = new Date(nowTime.value);
+  state.isReverseOn.value = false;
+  state.targetDate.value = new Date(nowTime.value);
 }
 </script>
 
@@ -85,14 +84,15 @@ function stopGame() {
   <time :datetime="counter" class="counter">{{ counter }}</time>
   <br>
   <label for="maxTimeSelect">Start with</label>
-  <select id="maxTimeSelect" v-model="maxTime" :disabled="isGameOn">
-    <option :value="inHours(24)">24h</option>
-    <option :value="inHours(48)">48h</option>
-    <option :value="inHours(72)">72h</option>
+  <select id="maxTimeSelect" v-model="state.maxTime.value" :disabled="isGameOn">
+    <option :value="10 * 1000">10s</option>
+    <option :value="hoursToMilliseconds(24)">24h</option>
+    <option :value="hoursToMilliseconds(48)">48h</option>
+    <option :value="hoursToMilliseconds(72)">72h</option>
   </select>
   <button :disabled="isGameOn" @click="startGame">Start game</button>
   <button :disabled="!isGameOn" @click="stopGame">Stop game</button>
   <button :disabled="!isGameOn" @click="reverseTime">
-    {{ isReverseOn ? "Disable reverse": "Enable reverse" }}
+    {{ state.isReverseOn.value ? "Disable reverse": "Enable reverse" }}
   </button>
 </template>
