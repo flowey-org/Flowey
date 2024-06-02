@@ -7,6 +7,7 @@ import { RollupOptions } from "rollup";
 import { defineConfig } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
+import svgLoader from "vite-svg-loader";
 
 await fs.promises.mkdir(`${import.meta.dirname}/public/assets/pwa`, { recursive: true });
 
@@ -14,10 +15,7 @@ const rollupOptions: RollupOptions = {
   output: {
     assetFileNames: (assetInfo) => {
       const name = assetInfo.name!;
-      let extType = name.substring(name.lastIndexOf(".") + 1);
-      if (/png|ico/i.test(extType)) {
-        extType = "img";
-      }
+      const extType = name.substring(name.lastIndexOf(".") + 1);
       return `assets/${extType}/[name].[hash:20][extname]`;
     },
     chunkFileNames: `assets/js/[name].[hash:20].js`,
@@ -36,7 +34,10 @@ const vitePWAOptions: Partial<VitePWAOptions> = {
   filename: "service-worker.ts",
   injectRegister: false,
   injectManifest: {
-    globPatterns: ["**/*.{js,css,html}", "favicon.{ico,svg}"],
+    globPatterns: [
+      "**/*.{js,css,html,woff2}",
+      "favicon.{ico,svg}",
+    ],
   },
   manifest: {
     name: "Flowey",
@@ -91,6 +92,19 @@ export default defineConfig(({ mode }) => {
       ...analyzeMode ? [analyzer()] : [],
       VitePWA(vitePWAOptions),
       vue(),
+      svgLoader({
+        svgoConfig: {
+          multipass: true,
+          plugins: [{
+            name: "preset-default",
+            params: {
+              overrides: {
+                cleanupIds: false,
+              },
+            },
+          }],
+        },
+      }),
     ],
     resolve: {
       alias: {

@@ -72,6 +72,18 @@ export default [
             caseInsensitive: true,
           },
           "newlines-between": "always",
+          "pathGroups": [
+            {
+              pattern: "@/components/**",
+              group: "internal",
+              position: "before",
+            },
+            {
+              pattern: "@/icons/**",
+              group: "internal",
+              position: "before",
+            },
+          ],
         },
       ],
       "import/newline-after-import": "error",

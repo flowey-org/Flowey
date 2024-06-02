@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 
-import App from "./App.vue";
+import App from "./components/App.vue";
 
 if ("storage" in navigator && "persist" in navigator.storage) {
   const isPersisted = await navigator.storage.persist();

@@ -7,7 +7,7 @@ class State {
   isReverseOn = ref(false);
   maxTime = ref(hoursToMilliseconds(24));
 
-  *[Symbol.iterator]() {
+  * [Symbol.iterator]() {
     for (const property in this) {
       yield [this[property], property] as const;
     }
@@ -26,10 +26,17 @@ class Database {
 
     for (const [ref, property] of this.state) {
       watch(ref, () => {
-        void this.put(ref.value, property);
+        this.put(ref.value, property);
       });
     }
   };
+
+  put(value: unknown, property: string) {
+    this.idb!
+      .transaction(OBJECT_STORE_NAME, "readwrite")
+      .objectStore(OBJECT_STORE_NAME)
+      .put(value, property);
+  }
 
   private async openIndexedBD() {
     return new Promise<IDBDatabase>((resolve) => {
@@ -59,28 +66,16 @@ class Database {
         for (const [ref, property] of this.state) {
           objectStore.get(property).onsuccess = (event) => {
             const value: unknown = (event.target as IDBRequest).result;
-            if (value !== undefined) {
-              if (typeof value === typeof ref.value) {
-                ref.value = value as typeof ref.value;
-                return;
-              }
+            if (value !== undefined && typeof value === typeof ref.value) {
+              ref.value = value as typeof ref.value;
+              return;
             }
-            void this.put(ref.value, property);
+            this.put(ref.value, property);
           };
         }
 
         resolve(idb);
       };
-    });
-  }
-
-  async put(value: unknown, property: string) {
-    return new Promise<void>((resolve) => {
-      this.idb!
-        .transaction(OBJECT_STORE_NAME, "readwrite")
-        .objectStore(OBJECT_STORE_NAME)
-        .put(value, property)
-        .onsuccess = () => { resolve(); };
     });
   }
 }
