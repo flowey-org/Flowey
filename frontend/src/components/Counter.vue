@@ -80,7 +80,7 @@ watchEffect(() => {
   }
 });
 
-const MIN_MAX_TIME = hoursToMilliseconds(1);
+const MIN_MAX_TIME = hoursToMilliseconds(24);
 const MAX_MAX_TIME = hoursToMilliseconds(72);
 
 function increaseMaxTime() {
