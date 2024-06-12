@@ -1,22 +1,36 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["build==1.2.1", "setuptools==70.0.0"]
+requires = ["setuptools==70.0.0"]
 
 [project]
 name = "flowey"
 version = "0.1.0"
-requires-python = "==3.12.3"
+requires-python = ">=3.12.3"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pip-tools==7.4.1"]
+dev = [
+    "build==1.2.1",
+    "mypy==1.10.0",
+    "ruff==0.4.8",
+    "uv==0.2.11"
+]
 
 [project.scripts]
 flowey = "flowey:main"
 
-[tool.pip-tools]
-all-build-deps = true
-allow-unsafe = true
-annotation-style = "split"
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D203",
+    "D212"
+]
+
+[tool.uv.pip]
 generate-hashes = true
-strip-extras = true
+strict = true
