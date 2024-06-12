@@ -20,6 +20,8 @@
             nixfmt-rfc-style
 
             nodejs_latest
+
+            python312
           ];
         };
       }

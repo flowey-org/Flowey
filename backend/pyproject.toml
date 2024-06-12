@@ -1,0 +1,22 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["build==1.2.1", "setuptools==70.0.0"]
+
+[project]
+name = "flowey"
+version = "0.1.0"
+requires-python = "==3.12.3"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pip-tools==7.4.1"]
+
+[project.scripts]
+flowey = "flowey:main"
+
+[tool.pip-tools]
+all-build-deps = true
+allow-unsafe = true
+annotation-style = "split"
+generate-hashes = true
+strip-extras = true
