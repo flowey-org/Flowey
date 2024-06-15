@@ -1,15 +1,35 @@
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { hoursToMilliseconds } from "@/utils";
 
-class State {
-  targetDate = ref(new Date());
-  isReverseOn = ref(false);
-  maxTime = ref(hoursToMilliseconds(24));
+export class State {
+  consts = {
+    availableBuffs: [1.00, 1.25, 1.50, 1.75, 2.00],
+  };
+
+  refs = {
+    targetDate: ref(Date.now()),
+    isReverseOn: ref(false),
+    maxTime: ref(hoursToMilliseconds(24)),
+    buffIndex: ref(0),
+  };
+
+  computed = {
+    buff: computed(() => {
+      return this.consts.availableBuffs[this.refs.buffIndex.value]!;
+    }),
+  };
+
+  switchBuff(): [number, number] {
+    const prevBuff = this.consts.availableBuffs[this.refs.buffIndex.value]!;
+    this.refs.buffIndex.value = (this.refs.buffIndex.value + 1) % this.consts.availableBuffs.length;
+    const buff = this.consts.availableBuffs[this.refs.buffIndex.value]!;
+    return [buff, prevBuff];
+  }
 
   * [Symbol.iterator]() {
-    for (const property in this) {
-      yield [this[property], property] as const;
+    for (const property in this.refs) {
+      yield [this.refs[property as keyof typeof this.refs], property] as const;
     }
   }
 }

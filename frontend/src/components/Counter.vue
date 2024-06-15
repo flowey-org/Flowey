@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from "vue";
 
 import Block from "@/components/Block.vue";
 import Box from "@/components/Box.vue";
+import BuffButton from "@/components/BuffButton.vue";
 import Button from "@/components/Button.vue";
 import Text from "@/components/Text.vue";
 import Timer from "@/components/Timer.vue";
@@ -22,13 +23,17 @@ import { formatSeconds, hoursToMilliseconds } from "@/utils";
 const nowTime = ref(Date.now());
 const isStopping = ref(false);
 
-const currentTime = computed(() => {
-  const difference = state.targetDate.value.getTime() - nowTime.value;
-  return Math.sign(difference) * Math.min(Math.abs(difference), state.maxTime.value);
+const currentDifference = computed(() => {
+  const difference = state.refs.targetDate.value - nowTime.value;
+  let distance = Math.abs(difference);
+  if (difference < 0) {
+    distance *= state.computed.buff.value;
+  }
+  return Math.sign(difference) * Math.min(distance, state.refs.maxTime.value);
 });
 
 const isGameOn = computed(() => {
-  return state.isReverseOn.value || currentTime.value > 500;
+  return state.refs.isReverseOn.value || currentDifference.value > 500;
 });
 
 const view = computed(() => {
@@ -38,11 +43,11 @@ const view = computed(() => {
 
 const time = computed(() => {
   if (isGameOn.value) {
-    const elapsedMilliseconds = Math.abs(currentTime.value);
+    const elapsedMilliseconds = Math.abs(currentDifference.value);
     const elapsedSeconds = Math.round(elapsedMilliseconds / 1000);
     return formatSeconds(elapsedSeconds);
   } else {
-    const seconds = state.maxTime.value / 1000;
+    const seconds = state.refs.maxTime.value / 1000;
     return formatSeconds(seconds);
   }
 });
@@ -84,31 +89,47 @@ const MIN_MAX_TIME = hoursToMilliseconds(24);
 const MAX_MAX_TIME = hoursToMilliseconds(72);
 
 function increaseMaxTime() {
-  state.maxTime.value = Math.min(MAX_MAX_TIME, state.maxTime.value + hoursToMilliseconds(1));
+  state.refs.maxTime.value = Math.min(MAX_MAX_TIME, state.refs.maxTime.value + hoursToMilliseconds(1));
 }
 
 function decreaseMaxTime() {
-  state.maxTime.value = Math.max(MIN_MAX_TIME, state.maxTime.value - hoursToMilliseconds(1));
+  state.refs.maxTime.value = Math.max(MIN_MAX_TIME, state.refs.maxTime.value - hoursToMilliseconds(1));
 }
 
 function reverseTime() {
-  state.isReverseOn.value = !state.isReverseOn.value;
-  state.targetDate.value = new Date(nowTime.value - currentTime.value);
+  let difference = currentDifference.value;
+  if (difference > 0) {
+    difference /= state.computed.buff.value;
+  }
+  state.refs.targetDate.value = nowTime.value - difference;
+
+  state.refs.isReverseOn.value = !state.refs.isReverseOn.value;
 }
 
 function startGame() {
   nowTime.value = Date.now();
-  state.targetDate.value = new Date(nowTime.value + state.maxTime.value);
+  state.refs.targetDate.value = nowTime.value + state.refs.maxTime.value;
 }
 
 function stopGame() {
   isStopping.value = false;
-  state.isReverseOn.value = false;
-  state.targetDate.value = new Date(nowTime.value);
+  state.refs.isReverseOn.value = false;
+  state.refs.targetDate.value = nowTime.value;
 }
 
 function toggleStopping() {
   isStopping.value = !isStopping.value;
+}
+
+function switchBuff() {
+  const [buff, prevBuff] = state.switchBuff();
+  const difference = state.refs.targetDate.value - nowTime.value;
+  let distance = Math.abs(difference);
+  if (difference < 0) {
+    distance *= prevBuff;
+    distance /= buff;
+    state.refs.targetDate.value = nowTime.value - distance;
+  }
 }
 </script>
 
@@ -119,14 +140,15 @@ function toggleStopping() {
       <Button @click="startGame">
         <PlayIcon />
       </Button>
+      <BuffButton @click="switchBuff" />
       <Button
-        :disabled="state.maxTime.value === MAX_MAX_TIME"
+        :disabled="state.refs.maxTime.value === MAX_MAX_TIME"
         @click="increaseMaxTime"
       >
         <PlusIcon />
       </Button>
       <Button
-        :disabled="state.maxTime.value === MIN_MAX_TIME"
+        :disabled="state.refs.maxTime.value === MIN_MAX_TIME"
         @click="decreaseMaxTime"
       >
         <MinusIcon />
@@ -134,12 +156,13 @@ function toggleStopping() {
     </Block>
     <Block v-else-if="view==='gameOn'">
       <Button
-        :class="!state.isReverseOn.value && 'suggested'"
+        :class="!state.refs.isReverseOn.value && 'suggested'"
         @click="reverseTime"
       >
-        <BackwardIcon v-if="state.isReverseOn.value" />
+        <BackwardIcon v-if="state.refs.isReverseOn.value" />
         <ForwardIcon v-else />
       </Button>
+      <BuffButton @click="switchBuff" />
       <Button @click="toggleStopping">
         <StopIcon />
       </Button>

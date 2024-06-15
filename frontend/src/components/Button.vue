@@ -9,6 +9,12 @@ defineEmits<{ click: [] }>();
 </template>
 
 <style>
+button {
+  all: unset;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 button > svg {
   height: var(--timer-font-size);
 }
@@ -23,11 +29,5 @@ button.suggested > svg > .background {
 
 button:disabled > svg > .background {
   fill: #a2aebb
-}
-
-button {
-  all: unset;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
 }
 </style>
