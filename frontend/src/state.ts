@@ -4,7 +4,7 @@ import { hoursToMilliseconds } from "@/utils";
 
 export class State {
   consts = {
-    availableBuffs: [1.00, 1.25, 1.50, 1.75, 2.00],
+    buffs: Array(1 / 0.05 + 1).fill(undefined).map((_, i) => 1 + Math.round(0.05 * i * 100) / 100),
   };
 
   refs = {
@@ -16,14 +16,14 @@ export class State {
 
   computed = {
     buff: computed(() => {
-      return this.consts.availableBuffs[this.refs.buffIndex.value]!;
+      return this.consts.buffs[this.refs.buffIndex.value]!;
     }),
   };
 
-  switchBuff(): [number, number] {
-    const prevBuff = this.consts.availableBuffs[this.refs.buffIndex.value]!;
-    this.refs.buffIndex.value = (this.refs.buffIndex.value + 1) % this.consts.availableBuffs.length;
-    const buff = this.consts.availableBuffs[this.refs.buffIndex.value]!;
+  nextBuff(): [number, number] {
+    const prevBuff = this.consts.buffs[this.refs.buffIndex.value]!;
+    this.refs.buffIndex.value = (this.refs.buffIndex.value + 1) % this.consts.buffs.length;
+    const buff = this.consts.buffs[this.refs.buffIndex.value]!;
     return [buff, prevBuff];
   }
 

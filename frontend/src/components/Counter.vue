@@ -121,13 +121,12 @@ function toggleStopping() {
   isStopping.value = !isStopping.value;
 }
 
-function switchBuff() {
-  const [buff, prevBuff] = state.switchBuff();
+function nextBuff() {
+  const [buff, prevBuff] = state.nextBuff();
   const difference = state.refs.targetDate.value - nowTime.value;
   let distance = Math.abs(difference);
   if (difference < 0) {
-    distance *= prevBuff;
-    distance /= buff;
+    distance = distance * prevBuff / buff;
     state.refs.targetDate.value = nowTime.value - distance;
   }
 }
@@ -140,7 +139,7 @@ function switchBuff() {
       <Button @click="startGame">
         <PlayIcon />
       </Button>
-      <BuffButton @click="switchBuff" />
+      <BuffButton @click="nextBuff" />
       <Button
         :disabled="state.refs.maxTime.value === MAX_MAX_TIME"
         @click="increaseMaxTime"
@@ -162,7 +161,7 @@ function switchBuff() {
         <BackwardIcon v-if="state.refs.isReverseOn.value" />
         <ForwardIcon v-else />
       </Button>
-      <BuffButton @click="switchBuff" />
+      <BuffButton @click="nextBuff" />
       <Button @click="toggleStopping">
         <StopIcon />
       </Button>
