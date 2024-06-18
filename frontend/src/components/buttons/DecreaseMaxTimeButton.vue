@@ -3,12 +3,12 @@ defineEmits<{ click: [] }>();
 
 import Button from "@/components/Button.vue";
 
-import state from "@/state";
+import { state } from "@/store";
 </script>
 
 <template>
   <Button
-    :disabled="state.refs.maxTime.value === state.refs.maxTime.minimum"
+    :disabled="state.maxTime.value === state.maxTime.minimum"
     @click="$emit('click')"
   >
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

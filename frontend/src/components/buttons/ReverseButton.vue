@@ -3,15 +3,15 @@ defineEmits<{ click: [] }>();
 
 import Button from "@/components/Button.vue";
 
-import state from "@/state";
+import { state } from "@/store";
 </script>
 
 <template>
   <Button
-    :class="!state.refs.isReverseOn.value && 'suggested'"
+    :class="!state.isReverseOn.value && 'suggested'"
     @click="$emit('click')"
   >
-    <template v-if="state.refs.isReverseOn.value">
+    <template v-if="state.isReverseOn.value">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path class="background" d="M 17.5,6.5 H 6.5 v 11 h 11 z" fill="none" />
         <path d="M 9.33333 10.3333 H 10.3333 V 11.3333 H 9.33333 V 10.3333 Z" fill="black" />

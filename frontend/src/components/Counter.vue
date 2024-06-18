@@ -15,23 +15,23 @@ import ReverseButton from "@/components/buttons/ReverseButton.vue";
 import StartButton from "@/components/buttons/StartButton.vue";
 import StopButton from "@/components/buttons/StopButton.vue";
 
-import state from "@/state";
-import { formatSeconds, hoursToMilliseconds } from "@/utils";
+import { state } from "@/store";
+import { formatSeconds } from "@/utils";
 
 const nowTime = ref(Date.now());
 const isStopping = ref(false);
 
 const currentDifference = computed(() => {
-  const difference = state.refs.targetDate.value - nowTime.value;
+  const difference = state.targetDate.value - nowTime.value;
   let distance = Math.abs(difference);
   if (difference < 0) {
-    distance *= state.computed.buff.value;
+    distance *= state.buff.value;
   }
-  return Math.sign(difference) * Math.min(distance, state.refs.maxTime.value);
+  return Math.sign(difference) * Math.min(distance, state.maxTime.value);
 });
 
 const isGameOn = computed(() => {
-  return state.refs.isReverseOn.value || currentDifference.value > 500;
+  return state.isReverseOn.value || currentDifference.value > 500;
 });
 
 const view = computed(() => {
@@ -45,7 +45,7 @@ const time = computed(() => {
     const elapsedSeconds = Math.round(elapsedMilliseconds / 1000);
     return formatSeconds(elapsedSeconds);
   } else {
-    const seconds = state.refs.maxTime.value / 1000;
+    const seconds = state.maxTime.value / 1000;
     return formatSeconds(seconds);
   }
 });
@@ -83,33 +83,23 @@ watchEffect(() => {
   }
 });
 
-function increaseMaxTime() {
-  state.refs.maxTime.value = Math.min(state.refs.maxTime.maximum, state.refs.maxTime.value + hoursToMilliseconds(1));
-}
-
-function decreaseMaxTime() {
-  state.refs.maxTime.value = Math.max(state.refs.maxTime.minimum, state.refs.maxTime.value - hoursToMilliseconds(1));
-}
-
 function reverseTime() {
   let difference = currentDifference.value;
-  if (difference > 0) {
-    difference /= state.computed.buff.value;
-  }
-  state.refs.targetDate.value = nowTime.value - difference;
+  (difference > 0) && (difference /= state.buff.value);
+  state.targetDate.value = nowTime.value - difference;
 
-  state.refs.isReverseOn.value = !state.refs.isReverseOn.value;
+  state.isReverseOn.value = !state.isReverseOn.value;
 }
 
 function startGame() {
   nowTime.value = Date.now();
-  state.refs.targetDate.value = nowTime.value + state.refs.maxTime.value;
+  state.targetDate.value = nowTime.value + state.maxTime.value;
 }
 
 function stopGame() {
   isStopping.value = false;
-  state.refs.isReverseOn.value = false;
-  state.refs.targetDate.value = nowTime.value;
+  state.isReverseOn.value = false;
+  state.targetDate.value = nowTime.value;
 }
 
 function toggleStopping() {
@@ -117,12 +107,12 @@ function toggleStopping() {
 }
 
 function nextBuff() {
-  const [buff, prevBuff] = state.nextBuff();
-  const difference = state.refs.targetDate.value - nowTime.value;
+  const [buff, prevBuff] = state.buff.next();
+  const difference = state.targetDate.value - nowTime.value;
   let distance = Math.abs(difference);
   if (difference < 0) {
     distance = distance * prevBuff / buff;
-    state.refs.targetDate.value = nowTime.value - distance;
+    state.targetDate.value = nowTime.value - distance;
   }
 }
 </script>
@@ -133,8 +123,8 @@ function nextBuff() {
     <Block v-if="view==='gameOff'">
       <StartButton @click="startGame" />
       <BuffButton @click="nextBuff" />
-      <IncreaseMaxTimeButton @click="increaseMaxTime" />
-      <DecreaseMaxTimeButton @click="decreaseMaxTime" />
+      <IncreaseMaxTimeButton @click="() => state.maxTime.increment()" />
+      <DecreaseMaxTimeButton @click="() => state.maxTime.decrement()" />
     </Block>
     <Block v-else-if="view==='gameOn'">
       <ReverseButton @click="reverseTime" />

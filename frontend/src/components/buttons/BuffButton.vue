@@ -5,10 +5,10 @@ import { computed } from "vue";
 
 import Button from "@/components/Button.vue";
 
-import state from "@/state";
+import { state } from "@/store";
 
 const text = computed(() => {
-  return `${state.computed.buff.value.toFixed(2)}x`;
+  return `${state.buff.value.toFixed(2)}x`;
 });
 </script>
 
