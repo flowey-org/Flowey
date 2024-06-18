@@ -74,12 +74,12 @@ export default [
           "newlines-between": "always",
           "pathGroups": [
             {
-              pattern: "@/components/**",
+              pattern: "@/components/*",
               group: "internal",
               position: "before",
             },
             {
-              pattern: "@/icons/**",
+              pattern: "@/components/buttons/*",
               group: "internal",
               position: "before",
             },

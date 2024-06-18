@@ -7,7 +7,6 @@ import { RollupOptions } from "rollup";
 import { defineConfig } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
-import svgLoader from "vite-svg-loader";
 
 await fs.promises.mkdir(`${import.meta.dirname}/public/assets/pwa`, { recursive: true });
 
@@ -92,19 +91,6 @@ export default defineConfig(({ mode }) => {
       ...analyzeMode ? [analyzer()] : [],
       VitePWA(vitePWAOptions),
       vue(),
-      svgLoader({
-        svgoConfig: {
-          multipass: true,
-          plugins: [{
-            name: "preset-default",
-            params: {
-              overrides: {
-                cleanupIds: false,
-              },
-            },
-          }],
-        },
-      }),
     ],
     resolve: {
       alias: {

@@ -1,4 +1,4 @@
-import { computed, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 
 import { hoursToMilliseconds } from "@/utils";
 
@@ -10,7 +10,11 @@ export class State {
   refs = {
     targetDate: ref(Date.now()),
     isReverseOn: ref(false),
-    maxTime: ref(hoursToMilliseconds(24)),
+    maxTime: reactive({
+      value: hoursToMilliseconds(24),
+      minimum: hoursToMilliseconds(24),
+      maximum: hoursToMilliseconds(72),
+    }),
     buffIndex: ref(0),
   };
 

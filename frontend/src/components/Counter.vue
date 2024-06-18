@@ -3,19 +3,17 @@ import { computed, ref, watchEffect } from "vue";
 
 import Block from "@/components/Block.vue";
 import Box from "@/components/Box.vue";
-import BuffButton from "@/components/BuffButton.vue";
-import Button from "@/components/Button.vue";
 import Text from "@/components/Text.vue";
 import Timer from "@/components/Timer.vue";
 
-import AcceptIcon from "@/icons/accept.svg";
-import BackwardIcon from "@/icons/backward.svg";
-import CancelIcon from "@/icons/cancel.svg";
-import ForwardIcon from "@/icons/forward.svg";
-import MinusIcon from "@/icons/minus.svg";
-import PlayIcon from "@/icons/play.svg";
-import PlusIcon from "@/icons/plus.svg";
-import StopIcon from "@/icons/stop.svg";
+import AcceptButton from "@/components/buttons/AcceptButton.vue";
+import BuffButton from "@/components/buttons/BuffButton.vue";
+import CancelButton from "@/components/buttons/CancelButton.vue";
+import DecreaseMaxTimeButton from "@/components/buttons/DecreaseMaxTimeButton.vue";
+import IncreaseMaxTimeButton from "@/components/buttons/IncreaseMaxTimeButton.vue";
+import ReverseButton from "@/components/buttons/ReverseButton.vue";
+import StartButton from "@/components/buttons/StartButton.vue";
+import StopButton from "@/components/buttons/StopButton.vue";
 
 import state from "@/state";
 import { formatSeconds, hoursToMilliseconds } from "@/utils";
@@ -85,15 +83,12 @@ watchEffect(() => {
   }
 });
 
-const MIN_MAX_TIME = hoursToMilliseconds(24);
-const MAX_MAX_TIME = hoursToMilliseconds(72);
-
 function increaseMaxTime() {
-  state.refs.maxTime.value = Math.min(MAX_MAX_TIME, state.refs.maxTime.value + hoursToMilliseconds(1));
+  state.refs.maxTime.value = Math.min(state.refs.maxTime.maximum, state.refs.maxTime.value + hoursToMilliseconds(1));
 }
 
 function decreaseMaxTime() {
-  state.refs.maxTime.value = Math.max(MIN_MAX_TIME, state.refs.maxTime.value - hoursToMilliseconds(1));
+  state.refs.maxTime.value = Math.max(state.refs.maxTime.minimum, state.refs.maxTime.value - hoursToMilliseconds(1));
 }
 
 function reverseTime() {
@@ -136,44 +131,20 @@ function nextBuff() {
   <Box>
     <Timer :time />
     <Block v-if="view==='gameOff'">
-      <Button @click="startGame">
-        <PlayIcon />
-      </Button>
+      <StartButton @click="startGame" />
       <BuffButton @click="nextBuff" />
-      <Button
-        :disabled="state.refs.maxTime.value === MAX_MAX_TIME"
-        @click="increaseMaxTime"
-      >
-        <PlusIcon />
-      </Button>
-      <Button
-        :disabled="state.refs.maxTime.value === MIN_MAX_TIME"
-        @click="decreaseMaxTime"
-      >
-        <MinusIcon />
-      </Button>
+      <IncreaseMaxTimeButton @click="increaseMaxTime" />
+      <DecreaseMaxTimeButton @click="decreaseMaxTime" />
     </Block>
     <Block v-else-if="view==='gameOn'">
-      <Button
-        :class="!state.refs.isReverseOn.value && 'suggested'"
-        @click="reverseTime"
-      >
-        <BackwardIcon v-if="state.refs.isReverseOn.value" />
-        <ForwardIcon v-else />
-      </Button>
+      <ReverseButton @click="reverseTime" />
       <BuffButton @click="nextBuff" />
-      <Button @click="toggleStopping">
-        <StopIcon />
-      </Button>
+      <StopButton @click="toggleStopping" />
     </Block>
     <Block v-else-if="view==='stopping'">
       <Text>You sure?</Text>
-      <Button @click="stopGame">
-        <AcceptIcon />
-      </Button>
-      <Button @click="toggleStopping">
-        <CancelIcon />
-      </Button>
+      <AcceptButton @click="stopGame" />
+      <CancelButton @click="toggleStopping" />
     </Block>
   </Box>
 </template>

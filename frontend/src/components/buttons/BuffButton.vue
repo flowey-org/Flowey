@@ -10,7 +10,6 @@ import state from "@/state";
 const text = computed(() => {
   return `${state.computed.buff.value.toFixed(2)}x`;
 });
-
 </script>
 
 <template>
@@ -28,7 +27,7 @@ const text = computed(() => {
   </Button>
 </template>
 
-<style scoped>
+<style>
 svg > text {
   font-size: 5px;
 }
