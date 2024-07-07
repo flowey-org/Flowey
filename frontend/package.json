@@ -5,7 +5,7 @@
     "build": "vite build",
     "develop": "NODE_ENV=development npm run build -- --mode=development",
     "watch": "npm run develop -- --watch",
-    "analyze": "NODE_ENV=development npm run build -- --mode=analyze",
+    "analyze": "npm run build -- --mode=analyze",
     "lint": "vue-tsc --noEmit; eslint . --ignore-pattern dist"
   },
   "dependencies": {

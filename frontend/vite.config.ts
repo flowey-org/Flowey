@@ -71,16 +71,16 @@ const vitePWAOptions: Partial<VitePWAOptions> = {
 };
 
 export default defineConfig(({ mode }) => {
-  const productionMode = mode === "production";
+  const developmentMode = mode === "development";
   const analyzeMode = mode === "analyze";
   return {
     build: {
-      minify: productionMode && "esbuild",
-      sourcemap: !productionMode,
+      minify: !developmentMode && "esbuild",
+      sourcemap: developmentMode,
       rollupOptions,
     },
     define: {
-      DEV_MODE: !productionMode,
+      DEV_MODE: developmentMode,
     },
     esbuild: {
       supported: {
