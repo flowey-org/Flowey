@@ -1,29 +1,27 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:paveloom/nixpkgs/system";
   };
 
   outputs =
-    { nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        devShells.default = pkgs.mkShell {
-          name = "flowey-shell";
-          nativeBuildInputs = with pkgs; [
-            bashInteractive
-            nil
-            nixfmt-rfc-style
+    { nixpkgs, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+    in
+    {
+      devShells.${system}.default = pkgs.mkShell {
+        name = "flowey-shell";
 
-            nodejs_latest
+        nativeBuildInputs = with pkgs; [
+          bashInteractive
+          nil
+          nixfmt-rfc-style
 
-            python312
-          ];
-        };
-      }
-    );
+          nodejs_latest
+
+          python312
+        ];
+      };
+    };
 }
