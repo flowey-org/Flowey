@@ -20,7 +20,8 @@
 
           nodejs_latest
 
-          python312
+          go_1_23
+          gopls
         ];
       };
     };
