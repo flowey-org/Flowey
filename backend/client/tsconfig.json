@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "checkJs": false,
+    "lib": [
+      "ES2017"
+    ],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true
+  }
+}
