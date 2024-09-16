@@ -19,6 +19,8 @@
           nixfmt-rfc-style
 
           nodejs_latest
+          typescript-language-server
+          vscode-langservers-extracted
 
           go_1_23
           gopls
