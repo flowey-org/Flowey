@@ -12,14 +12,18 @@ if (args.length < 3) {
 
 const ws = new WebSocket("ws://" + args[2]);
 
+function cleanup() {
+  ws.close();
+  process.exit();
+}
+
 const replServer = repl.start();
 replServer.context.ws = ws;
 replServer.ignoreUndefined = true;
 
 replServer.on("SIGINT", () => {
   replServer.once("SIGINT", () => {
-    ws.close();
-    process.exit();
+    cleanup();
   });
 });
 
@@ -29,4 +33,9 @@ ws.onmessage = (event) => {
   console.log(event.data);
   replServer.setPrompt("> ");
   replServer.displayPrompt();
+};
+
+ws.onerror = (event) => {
+  console.log(event.error.code);
+  cleanup();
 };
