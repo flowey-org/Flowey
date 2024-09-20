@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -9,34 +11,45 @@ import (
 	"github.com/coder/websocket"
 )
 
-type Handler struct{}
+type connection struct {
+	*websocket.Conn
+	writer  http.ResponseWriter
+	request *http.Request
+}
 
-func (handler Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func handleConnection(writer http.ResponseWriter, request *http.Request) error {
 	options := websocket.AcceptOptions{InsecureSkipVerify: true}
-	connection, err := websocket.Accept(writer, request, &options)
+	conn, err := websocket.Accept(writer, request, &options)
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
-	// At this point the client isn't listening anymore
+
+	connection := connection{conn, writer, request}
 	defer connection.CloseNow()
+
+	log.Printf("opened a connection with %v", request.RemoteAddr)
+
 	for {
-		err = handleFrame(connection)
-		if websocket.CloseStatus(err) == websocket.StatusNormalClosure {
-			return
-		}
+		err := connection.handleFrame()
 		if err != nil {
-			log.Printf("failed to respond to %v: %v", request.RemoteAddr, err)
-			return
+			return err
 		}
 	}
 }
 
-func handleFrame(connection *websocket.Conn) error {
-	ctx := context.TODO()
+func (connection *connection) handleFrame() error {
+	ctx := context.Background()
 
 	messageType, reader, err := connection.Reader(ctx)
 	if err != nil {
+		var closeError websocket.CloseError
+		if errors.As(err, &closeError) {
+			return fmt.Errorf(
+				"received a close frame from %v (%d, %q)",
+				connection.request.RemoteAddr, closeError.Code, closeError.Reason,
+			)
+		}
+
 		return err
 	}
 
@@ -51,4 +64,14 @@ func handleFrame(connection *websocket.Conn) error {
 	}
 
 	return writer.Close()
+}
+
+type Handler struct{}
+
+func (handler Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	err := handleConnection(writer, request)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
