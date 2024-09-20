@@ -17,6 +17,14 @@ function cleanup() {
   process.exit();
 }
 
+function respond(value) {
+  replServer.setPrompt("< ");
+  replServer.displayPrompt();
+  console.log(value);
+  replServer.setPrompt("> ");
+  replServer.displayPrompt();
+}
+
 const replServer = repl.start();
 replServer.context.ws = ws;
 replServer.ignoreUndefined = true;
@@ -28,11 +36,14 @@ replServer.on("SIGINT", () => {
 });
 
 ws.onmessage = (event) => {
-  replServer.setPrompt("< ");
-  replServer.displayPrompt();
-  console.log(event.data);
-  replServer.setPrompt("> ");
-  replServer.displayPrompt();
+  respond(event.data);
+};
+
+ws.onclose = (event) => {
+  let code = event.code;
+  let reason = event.reason;
+  let clean = event.wasClean ? "clean" : "not clean";
+  respond(`Connection closed (${code}, "${reason}", ${clean})`);
 };
 
 ws.onerror = (event) => {
