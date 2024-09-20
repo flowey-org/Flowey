@@ -36,6 +36,6 @@ ws.onmessage = (event) => {
 };
 
 ws.onerror = (event) => {
-  console.log(event.error.code);
+  console.log(`Error: ${event.error.code}`);
   cleanup();
 };
