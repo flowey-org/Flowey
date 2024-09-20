@@ -18,7 +18,8 @@ func (handler Handler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 		log.Println(err)
 		return
 	}
-	defer connection.Close(websocket.StatusNormalClosure, "")
+	// At this point the client isn't listening anymore
+	defer connection.CloseNow()
 	for {
 		err = handleFrame(connection)
 		if websocket.CloseStatus(err) == websocket.StatusNormalClosure {
