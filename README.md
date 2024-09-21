@@ -2,6 +2,6 @@
 
 Git mirrors:
 
-- [Codeberg](https://codeberg.org/paveloom-a/Flowey)
-- [GitHub](https://github.com/paveloom-a/Flowey)
-- [GitLab](https://gitlab.com/paveloom-g/apps/Flowey)
+- [Codeberg](https://codeberg.org/flowey-org/PWA)
+- [GitHub](https://github.com/flowey-org/PWA)
+- [GitLab](https://gitlab.com/flowey-org/PWA)
