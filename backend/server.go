@@ -15,25 +15,25 @@ type FloweyServer struct {
 }
 
 func NewFloweyServer(address string) *FloweyServer {
-	var f FloweyServer
-	f.Addr = address
-	f.Handler = Handler{}
-	return &f
+	var server FloweyServer
+	server.Addr = address
+	server.Handler = &handler{}
+	return &server
 }
 
-func (f *FloweyServer) ListenAndServe() error {
-	listener, err := net.Listen("tcp", f.Addr)
+func (server *FloweyServer) ListenAndServe() error {
+	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
 		return err
 	}
-	log.Printf("listening at %v", f.Addr)
+	log.Printf("listening at %v", server.Addr)
 
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
 
 	errs := make(chan error, 1)
 	go func() {
-		errs <- f.Serve(listener)
+		errs <- server.Serve(listener)
 	}()
 
 	select {
@@ -43,6 +43,6 @@ func (f *FloweyServer) ListenAndServe() error {
 		log.Printf("failed to serve: %w", err)
 	}
 
-	return f.Shutdown(context.Background())
+	return server.Shutdown(context.Background())
 
 }
