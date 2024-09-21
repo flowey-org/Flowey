@@ -1,4 +1,5 @@
+/*.code-workspace
 /.direnv/
 /.idea/
+/.nlsp-settings
 /.vscode/
-/*.code-workspace
