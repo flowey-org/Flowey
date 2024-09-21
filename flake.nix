@@ -21,6 +21,9 @@
           nodejs_latest
           typescript-language-server
           vscode-langservers-extracted
+
+          yamlfmt
+          yamllint
         ];
       };
     };
