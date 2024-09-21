@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -38,11 +37,20 @@ func (server *FloweyServer) ListenAndServe() error {
 
 	select {
 	case <-sigint:
-		fmt.Print("\rinterrupting...\n")
+		print("\r")
 	case err := <-errs:
-		log.Printf("failed to serve: %w", err)
+		log.Printf("failed to serve: %v", err)
 	}
 
 	return server.Shutdown(context.Background())
+}
 
+func (server *FloweyServer) Shutdown(ctx context.Context) error {
+	log.Println("shutdown initiated")
+	defer log.Println("shutdown finished")
+
+	handler := server.Handler.(*handler)
+	handler.close()
+
+	return server.Server.Shutdown(context.Background())
 }

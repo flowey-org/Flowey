@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/coder/websocket"
 )
@@ -15,26 +16,6 @@ type connection struct {
 	*websocket.Conn
 	writer  http.ResponseWriter
 	request *http.Request
-}
-
-func handleConnection(writer http.ResponseWriter, request *http.Request) error {
-	options := websocket.AcceptOptions{InsecureSkipVerify: true}
-	conn, err := websocket.Accept(writer, request, &options)
-	if err != nil {
-		return err
-	}
-
-	connection := connection{conn, writer, request}
-	defer connection.CloseNow()
-
-	log.Printf("opened a connection with %v", request.RemoteAddr)
-
-	for {
-		err := connection.handleFrame()
-		if err != nil {
-			return err
-		}
-	}
 }
 
 func (connection *connection) handleFrame() error {
@@ -66,12 +47,55 @@ func (connection *connection) handleFrame() error {
 	return writer.Close()
 }
 
-type Handler struct{}
+type handler struct {
+	connections sync.Map
+	waitGroup sync.WaitGroup
+}
 
-func (handler Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	err := handleConnection(writer, request)
+func (handler *handler) handle(writer http.ResponseWriter, request *http.Request) error {
+	defer handler.waitGroup.Done()
+
+	options := websocket.AcceptOptions{InsecureSkipVerify: true}
+	conn, err := websocket.Accept(writer, request, &options)
+	if err != nil {
+		return err
+	}
+
+	connection := connection{conn, writer, request}
+	defer connection.CloseNow()
+
+	handler.connections.Store(connection, true)
+	defer handler.connections.Delete(connection)
+
+	log.Printf("opened a connection with %v", request.RemoteAddr)
+
+	for {
+		err := connection.handleFrame()
+		if err != nil {
+			return err
+		}
+	}
+}
+
+func (handler *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	handler.waitGroup.Add(1)
+
+	err := handler.handle(writer, request)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+}
+
+func (handler *handler) close() {
+	for key, _ := range handler.connections.Range {
+		connection, ok := key.(connection)
+		if !ok {
+			return
+		}
+
+		connection.Close(websocket.StatusNormalClosure, "server shutting down")
+	}
+
+	handler.waitGroup.Wait()
 }
