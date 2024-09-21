@@ -25,6 +25,8 @@
     "@types/node": "=20.12.12",
     "@vite-pwa/assets-generator": "=0.2.4",
     "@vitejs/plugin-vue": "=5.0.4",
+    "@vue/language-server": "^2.1.6",
+    "@vue/typescript-plugin": "^2.1.6",
     "eslint": "=8.57.0",
     "eslint-import-resolver-typescript": "=3.6.1",
     "eslint-plugin-import": "=2.29.1",
