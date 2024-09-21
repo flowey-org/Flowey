@@ -11,7 +11,7 @@ func run() error {
 		return errors.New("no address specified")
 	}
 	address := os.Args[1]
-	server := NewFloweyServer(address)
+	server := NewServer(address)
 	return server.ListenAndServe()
 }
 

@@ -9,18 +9,18 @@ import (
 	"os/signal"
 )
 
-type FloweyServer struct {
+type Server struct {
 	http.Server
 }
 
-func NewFloweyServer(address string) *FloweyServer {
-	var server FloweyServer
+func NewServer(address string) *Server {
+	var server Server
 	server.Addr = address
 	server.Handler = &handler{}
 	return &server
 }
 
-func (server *FloweyServer) ListenAndServe() error {
+func (server *Server) ListenAndServe() error {
 	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (server *FloweyServer) ListenAndServe() error {
 	return server.Shutdown(context.Background())
 }
 
-func (server *FloweyServer) Shutdown(ctx context.Context) error {
+func (server *Server) Shutdown(ctx context.Context) error {
 	log.Println("shutdown initiated")
 	defer log.Println("shutdown finished")
 
