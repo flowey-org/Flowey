@@ -23,7 +23,9 @@
           vscode-langservers-extracted
 
           go_1_23
-          gopls
+          (gopls.override {
+            buildGoModule = pkgs.buildGo123Module;
+          })
         ];
       };
     };
