@@ -11,7 +11,7 @@
     in
     {
       devShells.${system}.default = pkgs.mkShell {
-        name = "flowey-pwa-shell";
+        name = "flowey-shell";
 
         nativeBuildInputs = with pkgs; [
           bashInteractive
@@ -21,6 +21,11 @@
           nodejs_latest
           typescript-language-server
           vscode-langservers-extracted
+
+          go_1_23
+          (gopls.override {
+            buildGoModule = pkgs.buildGo123Module;
+          })
 
           yamlfmt
           yamllint

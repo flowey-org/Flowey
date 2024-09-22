@@ -1,0 +1,14 @@
+{
+  "name": "client",
+  "description": "Client Node scripts",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@stylistic/eslint-plugin": "^2.8.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/ws": "^8.5.12",
+    "eslint": "^9.10.0",
+    "npm-check-updates": "^17.1.1",
+    "ws": "^8.18.0"
+  }
+}
