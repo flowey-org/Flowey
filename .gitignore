@@ -3,6 +3,3 @@
 /.idea/
 /.nlsp-settings
 /.vscode/
-
-/dist/
-/node_modules/
