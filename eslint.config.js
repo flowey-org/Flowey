@@ -1,6 +1,6 @@
 import eslint from "@eslint/js";
 import pluginStylistic from "@stylistic/eslint-plugin";
-import pluginImport from "eslint-plugin-import";
+import pluginImportX from "eslint-plugin-import-x";
 import pluginVue from "eslint-plugin-vue";
 import pluginTypeScript from "typescript-eslint";
 import parserVue from "vue-eslint-parser";
@@ -23,6 +23,9 @@ export default [
         "max-len": ["error", { code: 120 }],
         "sort-imports": ["error", { ignoreDeclarationSort: true }],
         "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-expressions": ["error", {
+          allowShortCircuit: true,
+        }],
         "@typescript-eslint/restrict-template-expressions": ["error", {
           allowBoolean: true,
         }],
@@ -60,12 +63,12 @@ export default [
   {
     ...sources,
     plugins: {
-      import: pluginImport,
+      "import-x": pluginImportX,
     },
     rules: {
-      ...pluginImport.configs.recommended.rules,
-      ...pluginImport.configs.typescript.rules,
-      "import/order": [
+      ...pluginImportX.configs.recommended.rules,
+      ...pluginImportX.configs.typescript.rules,
+      "import-x/order": [
         "error", {
           "alphabetize": {
             order: "asc",
@@ -86,10 +89,10 @@ export default [
           ],
         },
       ],
-      "import/newline-after-import": "error",
+      "import-x/newline-after-import": "error",
     },
     settings: {
-      "import/resolver": {
+      "import-x/resolver": {
         typescript: true,
         node: true,
       },
