@@ -27,6 +27,8 @@
             buildGoModule = pkgs.buildGo123Module;
           })
 
+          dockerfile-language-server-nodejs
+          hadolint
           yamlfmt
           yamllint
         ];
