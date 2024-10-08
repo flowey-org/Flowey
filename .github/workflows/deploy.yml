@@ -1,0 +1,34 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+env:
+  IMAGE_NAME_BACKEND: ghcr.io/${{ github.repository_owner }}/backend
+  IMAGE_NAME_LANDING: ghcr.io/${{ github.repository_owner }}/landing
+  IMAGE_NAME_PWA: ghcr.io/${{ github.repository_owner }}/pwa
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Get a tag for the images
+        run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build the backend image
+        run: docker build -t $IMAGE_NAME_BACKEND:$IMAGE_TAG backend
+      - name: Build the landing image
+        run: docker build -t $IMAGE_NAME_LANDING:$IMAGE_TAG landing
+      - name: Build the PWA image
+        run: docker build -t $IMAGE_NAME_PWA:$IMAGE_TAG pwa
+      - name: Push the images
+        run: |
+          docker push $IMAGE_NAME_BACKEND:$IMAGE_TAG
+          docker push $IMAGE_NAME_LANDING:$IMAGE_TAG
+          docker push $IMAGE_NAME_PWA:$IMAGE_TAG
