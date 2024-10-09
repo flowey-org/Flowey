@@ -1,0 +1,19 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: flowey
+build:
+  artifacts:
+    - image: backend
+      context: backend
+    - image: landing
+      context: landing
+    - image: pwa
+      context: pwa
+  local:
+    useBuildkit: true
+manifests:
+  rawYaml:
+    - backend/deployment.yaml
+    - landing/deployment.yaml
+    - pwa/deployment.yaml
