@@ -10,7 +10,7 @@ if (args.length < 3) {
   process.exit(1);
 }
 
-const ws = new WebSocket("ws://" + args[2]);
+const ws = new WebSocket(args[2]);
 
 function cleanup() {
   ws.close();
