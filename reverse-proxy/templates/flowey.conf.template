@@ -1,0 +1,29 @@
+server {
+    listen ${FLOWEY_LANDING_PORT} ssl;
+    server_name ${FLOWEY_LANDING_HOST};
+
+    ssl_certificate /etc/nginx/certs/flowey.crt;
+    ssl_certificate_key /etc/nginx/certs/flowey.key;
+    ssl_trusted_certificate /etc/nginx/certs/flowey.issuer.crt;
+
+    error_page 497 301 =307 https://$server_addr:$server_port$request_uri;
+
+    location / {
+        proxy_pass http://landing:80;
+    }
+}
+
+server {
+    listen ${FLOWEY_PWA_PORT} ssl;
+    server_name ${FLOWEY_PWA_HOST};
+
+    ssl_certificate /etc/nginx/certs/flowey.crt;
+    ssl_certificate_key /etc/nginx/certs/flowey.key;
+    ssl_trusted_certificate /etc/nginx/certs/flowey.issuer.crt;
+
+    error_page 497 301 =307 https://$server_addr:$server_port$request_uri;
+
+    location / {
+        proxy_pass http://pwa:80;
+    }
+}
