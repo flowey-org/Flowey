@@ -4,5 +4,6 @@
 /.nlsp-settings
 /.vscode/
 
-# Use this file to provide environment variables to Docker Compose
+# Use these to provide environment variables to Docker Compose
 /.env
+/.env.d/
