@@ -2,9 +2,8 @@ FROM docker.io/node:22.8.0 AS builder
 
 WORKDIR /build/src
 
-COPY . .
-
 RUN --mount=type=cache,target=/root/.npm \
+	--mount=type=bind,target=.,rw \
 	npm install && \
 	npm run build -- --outDir /build/output
 
