@@ -18,10 +18,6 @@
           nil
           nixfmt-rfc-style
 
-          kubectl
-          minikube
-          skaffold
-
           nodejs_latest
           typescript-language-server
           vscode-langservers-extracted
