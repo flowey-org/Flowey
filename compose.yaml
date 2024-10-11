@@ -24,28 +24,8 @@ services:
           action: rebuild
     networks:
       - service
-  reverse-proxy:
-    build: reverse-proxy
-    environment:
-      FLOWEY_LANDING_HOST: ${FLOWEY_LANDING_HOST:?error}
-      FLOWEY_LANDING_PORT: ${FLOWEY_LANDING_PORT:?error}
-      FLOWEY_PWA_HOST: ${FLOWEY_PWA_HOST:?error}
-      FLOWEY_PWA_PORT: ${FLOWEY_PWA_PORT:?error}
-    ports:
-      - ${FLOWEY_LANDING_PORT}:${FLOWEY_LANDING_PORT}
-      - ${FLOWEY_PWA_PORT}:${FLOWEY_PWA_PORT}
-    depends_on:
-      - backend
-      - pwa
-    networks:
-      - landing
-      - service
-    volumes:
-      - certs:/etc/nginx/certs:ro
 networks:
   landing:
     driver: bridge
   service:
     driver: bridge
-volumes:
-  certs:
