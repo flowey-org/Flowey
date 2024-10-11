@@ -8,6 +8,10 @@ services:
           action: rebuild
     networks:
       - landing
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
   backend:
     build: backend
     develop:
@@ -24,8 +28,14 @@ services:
           action: rebuild
     networks:
       - service
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
 networks:
   landing:
     driver: bridge
   service:
     driver: bridge
+  traefik:
+    external: true
