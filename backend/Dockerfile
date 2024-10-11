@@ -11,4 +11,6 @@ FROM scratch
 
 COPY --from=builder /app/flowey /app/flowey
 
+EXPOSE 80
+
 ENTRYPOINT [ "/app/flowey" ]
