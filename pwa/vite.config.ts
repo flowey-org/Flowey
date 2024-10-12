@@ -74,6 +74,7 @@ export default defineConfig(({ mode }) => {
   const developmentMode = mode === "development";
   const analyzeMode = mode === "analyze";
   return {
+    base: "./",
     build: {
       minify: !developmentMode && "esbuild",
       sourcemap: developmentMode,
