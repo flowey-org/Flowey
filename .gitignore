@@ -3,7 +3,3 @@
 /.idea/
 /.nlsp-settings
 /.vscode/
-
-# Use these to provide environment variables to Docker Compose
-/.env
-/.env.d/
