@@ -6,6 +6,7 @@ services:
       watch:
         - path: landing
           action: rebuild
+    restart: unless-stopped
     networks:
       - landing
       - traefik
@@ -18,6 +19,7 @@ services:
       watch:
         - path: backend
           action: rebuild
+    restart: unless-stopped
     networks:
       - service
   pwa:
@@ -29,6 +31,7 @@ services:
     networks:
       - service
       - traefik
+    restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
