@@ -11,6 +11,8 @@ FROM scratch
 
 COPY --from=builder /app/flowey /app/flowey
 
+LABEL org.opencontainers.image.source=https://github.com/flowey-org/Flowey
+
 EXPOSE 80
 
 ENTRYPOINT [ "/app/flowey" ]

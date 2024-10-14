@@ -2,6 +2,7 @@ name: flowey
 services:
   landing:
     build: landing
+    image: ghcr.io/flowey-org/landing:latest
     develop:
       watch:
         - path: landing
@@ -15,6 +16,7 @@ services:
       - traefik.docker.network=traefik
   backend:
     build: backend
+    image: ghcr.io/flowey-org/backend:latest
     develop:
       watch:
         - path: backend
@@ -24,6 +26,7 @@ services:
       - service
   pwa:
     build: pwa
+    image: ghcr.io/flowey-org/pwa:latest
     develop:
       watch:
         - path: pwa
