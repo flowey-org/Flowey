@@ -4,15 +4,15 @@ WORKDIR /app/src
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
 	--mount=type=cache,target="/root/.cache/go-build" \
-	--mount=type=bind,target=. \
-	CGO_ENABLED=0 go build -ldflags "-s -w" -o /app/flowey
+	--mount=type=bind,source=server,target=. \
+	CGO_ENABLED=0 go build -ldflags "-s -w" -o /app/flowey-server
 
 FROM scratch
 
-COPY --from=builder /app/flowey /app/flowey
+COPY --from=builder /app/flowey-server /app/flowey-server
 
 LABEL org.opencontainers.image.source=https://github.com/flowey-org/Flowey
 
 EXPOSE 80
 
-ENTRYPOINT [ "/app/flowey" ]
+ENTRYPOINT [ "/app/flowey-server" ]

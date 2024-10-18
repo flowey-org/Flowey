@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"flowey/internal"
+	"flowey-server/internal"
 )
 
 func run(address string) error {

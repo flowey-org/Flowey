@@ -1,4 +1,4 @@
-module flowey
+module flowey-server
 
 go 1.23.0
 
