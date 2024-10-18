@@ -1,2 +1,3 @@
-/flowey-cli
-/flowey-server
+*.db
+flowey-cli
+flowey-server

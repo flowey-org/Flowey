@@ -26,6 +26,7 @@
           (gopls.override {
             buildGoModule = pkgs.buildGo123Module;
           })
+          sqlite-interactive
 
           dockerfile-language-server-nodejs
           hadolint
