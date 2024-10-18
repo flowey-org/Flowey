@@ -4,10 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
+
+	"flowey/internal"
 )
 
 func run(address string) error {
-	server := NewServer(address)
+	server := internal.NewServer(address)
 	return server.ListenAndServe()
 }
 
