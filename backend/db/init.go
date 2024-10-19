@@ -47,22 +47,26 @@ func create(path string) error {
 	return nil
 }
 
-func runInit() error {
+func Init(args []string, path string) error {
 	flagSet := flag.NewFlagSet("flowey db init", flag.ExitOnError)
-	path := flagSet.String("path", "flowey.db", "path to the database file")
-	flagSet.Parse(os.Args[3:])
+
+	flagSet.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Usage: flowey db init")
+	}
+
+	flagSet.Parse(args)
 
 	if flagSet.NArg() > 0 {
 		flagSet.Usage()
 		return nil
 	}
 
-	if exists, err := exists(*path); err != nil {
+	if exists, err := exists(path); err != nil {
 		return err
 	} else if exists {
-		fmt.Printf("the file %s already exists, doing nothing\n", *path)
+		fmt.Printf("the file %s already exists, doing nothing\n", path)
 		return nil
 	}
 
-	return create(*path)
+	return create(path)
 }
