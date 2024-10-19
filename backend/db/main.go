@@ -14,6 +14,11 @@ func Main() error {
 	path := flagSet.String("db", "flowey.db", "path to the database file")
 	flagSet.Parse(os.Args[2:])
 
+	if flagSet.NArg() > 0 {
+		flagSet.Usage()
+		return nil
+	}
+
 	db, err := sql.Open("sqlite3", *path)
 	if err != nil {
 		return err
