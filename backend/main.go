@@ -16,9 +16,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "db":
-		if err := db.Main(); err != nil {
-			log.Fatal(err)
-		}
+		db.Main();
 		return
 	case "server":
 		if err := server.Main(); err != nil {
