@@ -1,25 +1,27 @@
-package main
+package db
 
 import (
 	"database/sql"
-	"log"
 	"flag"
+	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
-	path := flag.String("db", "flowey.db", "path to the database file")
-	flag.Parse()
+func Main() error {
+	flagSet := flag.NewFlagSet("flowey db", flag.ExitOnError)
+	path := flagSet.String("db", "flowey.db", "path to the database file")
+	flagSet.Parse(os.Args[2:])
 
 	db, err := sql.Open("sqlite3", *path)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	query := `
@@ -30,6 +32,8 @@ CREATE TABLE users(
 );`
 	if _, err := db.Exec(query); err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
+
+	return nil
 }

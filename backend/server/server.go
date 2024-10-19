@@ -1,7 +1,8 @@
-package internal
+package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -13,9 +14,9 @@ type Server struct {
 	http.Server
 }
 
-func NewServer(address string) *Server {
+func NewServer(ip string, port int) *Server {
 	var server Server
-	server.Addr = address
+	server.Addr = fmt.Sprintf("%s:%d", ip, port)
 	server.Handler = &handler{}
 	return &server
 }

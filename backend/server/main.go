@@ -1,25 +1,16 @@
-package main
+package server
 
 import (
 	"flag"
-	"fmt"
-	"log"
-
-	"flowey-server/internal"
+	"os"
 )
 
-func run(address string) error {
-	server := internal.NewServer(address)
+func Main() error {
+	flagSet := flag.NewFlagSet("flowey server", flag.ExitOnError)
+	ip := flagSet.String("ip", "0.0.0.0", "ip to bind to")
+	port := flagSet.Int("port", 80, "port to bind to")
+	flagSet.Parse(os.Args[2:])
+
+	server := NewServer(*ip, *port)
 	return server.ListenAndServe()
-}
-
-func main() {
-	ip := flag.String("ip", "0.0.0.0", "ip to bind to")
-	port := flag.Int("port", 80, "port to bind to")
-	flag.Parse()
-
-	address := fmt.Sprintf("%s:%d", *ip, *port)
-	if err := run(address); err != nil {
-		log.Fatal(err)
-	}
 }

@@ -1,0 +1,4 @@
+*.db
+/client
+flowey-cli
+flowey-server

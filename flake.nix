@@ -28,6 +28,7 @@
           })
           sqlite-interactive
 
+          bash-language-server
           dockerfile-language-server-nodejs
           hadolint
           yamlfmt
