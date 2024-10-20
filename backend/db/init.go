@@ -11,7 +11,7 @@ import (
 )
 
 func Occupied(path string) (bool, error) {
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
 		if errors.Is(err, fs.ErrExist) {
 			return true, nil
