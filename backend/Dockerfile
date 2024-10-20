@@ -18,7 +18,7 @@ LABEL org.opencontainers.image.source=https://github.com/flowey-org/Flowey
 
 EXPOSE 80
 
-ARG USER=default
+ARG USER=flowey
 ENV HOME=/home/$USER
 
 RUN adduser -D $USER
@@ -27,6 +27,8 @@ COPY --from=builder /build/flowey /usr/local/bin
 
 USER $USER
 WORKDIR $HOME
+
+RUN mkdir -p ~/.local/share/flowey
 
 ENTRYPOINT [ "flowey" ]
 CMD [ "server" ]

@@ -24,6 +24,8 @@ services:
     restart: unless-stopped
     networks:
       - service
+    volumes:
+      - db:/home/flowey/.local/share/flowey
   pwa:
     build: pwa
     image: ghcr.io/flowey-org/pwa:latest
@@ -45,3 +47,5 @@ networks:
     driver: bridge
   traefik:
     external: true
+volumes:
+  db:
