@@ -5,13 +5,22 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"flowey/utils"
 )
 
+func getPath() string {
+	dataDir, err := utils.GetDataDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return filepath.Join(dataDir, "flowey.db")
+}
+
 func Main(args []string) {
 	flagSet := flag.NewFlagSet("flowey db", flag.ExitOnError)
-	path := flagSet.String("path", "flowey.db", "path to the database file")
+	path := flagSet.String("path", getPath(), "path to the database file")
 
 	flagSet.Usage = func() {
 		fmt.Fprintln(os.Stderr, `Usage of flowey db:
