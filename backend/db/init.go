@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func exists(path string) (bool, error) {
+func Exists(path string) (bool, error) {
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
 		if errors.Is(err, fs.ErrExist) {
@@ -23,7 +23,7 @@ func exists(path string) (bool, error) {
 	return false, nil
 }
 
-func create(path string) error {
+func Create(path string) error {
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return err
@@ -61,12 +61,12 @@ func Init(args []string, path string) error {
 		return nil
 	}
 
-	if exists, err := exists(path); err != nil {
+	if exists, err := Exists(path); err != nil {
 		return err
 	} else if exists {
 		fmt.Printf("the file %s already exists, doing nothing\n", path)
 		return nil
 	}
 
-	return create(path)
+	return Create(path)
 }

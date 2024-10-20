@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func GetDataDir() (string, error) {
+func getDataDir() (string, error) {
 	dataHome, present := os.LookupEnv("XDG_DATA_HOME")
 	if !present {
 		homeDir, err := os.UserHomeDir()
@@ -22,4 +22,12 @@ func GetDataDir() (string, error) {
 	}
 
 	return dataDir, nil
+}
+
+func GetDefaultPath() (string, error) {
+	dataDir, err := getDataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dataDir, "flowey.db"), nil
 }
