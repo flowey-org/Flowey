@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func Exists(path string) (bool, error) {
+func Occupied(path string) (bool, error) {
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
 		if errors.Is(err, fs.ErrExist) {
@@ -61,9 +61,9 @@ func Init(args []string, path string) error {
 		return nil
 	}
 
-	if exists, err := Exists(path); err != nil {
+	if occupied, err := Occupied(path); err != nil {
 		return err
-	} else if exists {
+	} else if occupied {
 		fmt.Printf("the file %s already exists, doing nothing\n", path)
 		return nil
 	}

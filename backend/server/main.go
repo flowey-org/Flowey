@@ -26,9 +26,9 @@ func Main() error {
 		return nil
 	}
 
-	if exists, err := db.Exists(*path); err != nil {
+	if occupied, err := db.Occupied(*path); err != nil {
 		return err
-	} else if !exists {
+	} else if !occupied {
 		if err := db.Create(*path); err != nil {
 			return err
 		}
