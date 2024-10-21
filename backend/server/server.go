@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 )
 
 type Server struct {
@@ -29,7 +30,7 @@ func (server *Server) ListenAndServe() error {
 	log.Printf("listening at %v", server.Addr)
 
 	sigint := make(chan os.Signal, 1)
-	signal.Notify(sigint, os.Interrupt)
+	signal.Notify(sigint, syscall.SIGTERM, os.Interrupt)
 
 	errs := make(chan error, 1)
 	go func() {
