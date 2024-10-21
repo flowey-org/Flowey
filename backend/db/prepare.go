@@ -33,53 +33,47 @@ type tableInfoRow struct {
 	pk         int
 }
 
+type tableInfo = []tableInfoRow
+
 func Validate(path string) error {
-	expectedUsersTableInfo := []tableInfoRow{
+	expectedTableInfos := []tableInfo{
 		{
-			cid:        0,
-			name:       "id",
-			typeDef:    "INTEGER",
-			notnull:    1,
-			dflt_value: nil,
-			pk:         1,
+			{cid: 0, name: "id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 1},
+			{cid: 1, name: "username", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
+			{cid: 2, name: "password", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
 		},
 		{
-			cid:        1,
-			name:       "username",
-			typeDef:    "TEXT",
-			notnull:    1,
-			dflt_value: nil,
-			pk:         0,
-		},
-		{
-			cid:        2,
-			name:       "password",
-			typeDef:    "TEXT",
-			notnull:    1,
-			dflt_value: nil,
-			pk:         0,
+			{cid: 0, name: "session_key", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 1},
+			{cid: 1, name: "user_id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 0},
 		},
 	}
 
-	rows, err := db.Query(`PRAGMA table_info(users)`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	var usersTableInfo []tableInfoRow
-	for rows.Next() {
-		var r tableInfoRow
-		if err := rows.Scan(
-			&r.cid, &r.name, &r.typeDef, &r.notnull, &r.dflt_value, &r.pk,
-		); err != nil {
+	tableInfos := []tableInfo{}
+	for _, tableName := range []string{"users", "sessions"} {
+		rows, err := db.Query(`PRAGMA table_info(` + tableName + `)`)
+		if err != nil {
 			return err
 		}
-		usersTableInfo = append(usersTableInfo, r)
+
+		tableInfo := tableInfo{}
+		for rows.Next() {
+			var r tableInfoRow
+			if err := rows.Scan(
+				&r.cid, &r.name, &r.typeDef, &r.notnull, &r.dflt_value, &r.pk,
+			); err != nil {
+				return err
+			}
+			tableInfo = append(tableInfo, r)
+		}
+
+		tableInfos = append(tableInfos, tableInfo)
+		rows.Close()
 	}
 
-	if !slices.Equal(usersTableInfo, expectedUsersTableInfo) {
-		return fmt.Errorf("failed to validate the database")
+	for i, expectedTableInfo := range expectedTableInfos {
+		if !slices.Equal(expectedTableInfo, tableInfos[i]) {
+			return fmt.Errorf("failed to validate the database")
+		}
 	}
 
 	log.Printf("validated the database")
@@ -91,7 +85,11 @@ func Init(path string) error {
   id INTEGER NOT NULL PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL
-);`
+);
+CREATE TABLE sessions(
+  session_key TEXT NOT NULL PRIMARY KEY,
+  user_id INTEGER NOT NULL
+)`
 	if _, err := db.Exec(query); err != nil {
 		log.Println(err)
 		return nil
