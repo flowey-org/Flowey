@@ -37,12 +37,12 @@ func (connection *connection) handleFrame(ctx context.Context) error {
 	return nil
 }
 
-type handler struct {
+type wsHandler struct {
 	connections sync.Map
-	waitGroup sync.WaitGroup
+	waitGroup   sync.WaitGroup
 }
 
-func (handler *handler) handle(writer http.ResponseWriter, request *http.Request) error {
+func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Request) error {
 	defer handler.waitGroup.Done()
 
 	options := websocket.AcceptOptions{InsecureSkipVerify: true}
@@ -68,7 +68,7 @@ func (handler *handler) handle(writer http.ResponseWriter, request *http.Request
 	}
 }
 
-func (handler *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	handler.waitGroup.Add(1)
 
 	err := handler.handle(writer, request)
@@ -78,7 +78,7 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	}
 }
 
-func (handler *handler) close() {
+func (handler *wsHandler) close() {
 	for key, _ := range handler.connections.Range {
 		connection, ok := key.(connection)
 		if !ok {

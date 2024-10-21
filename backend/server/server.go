@@ -17,7 +17,7 @@ type Server struct {
 func NewServer(ip string, port int) *Server {
 	var server Server
 	server.Addr = fmt.Sprintf("%s:%d", ip, port)
-	server.Handler = &handler{}
+	server.Handler = NewServeMux()
 	return &server
 }
 
@@ -50,7 +50,7 @@ func (server *Server) Shutdown(ctx context.Context) error {
 	log.Println("shutdown initiated")
 	defer log.Println("shutdown finished")
 
-	handler := server.Handler.(*handler)
+	handler := server.Handler.(*ServeMux)
 	handler.close()
 
 	return server.Server.Shutdown(context.Background())
