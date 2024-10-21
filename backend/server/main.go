@@ -26,16 +26,16 @@ func Main() error {
 		return nil
 	}
 
-	if occupied, err := db.Occupied(*path); err != nil {
-		return err
-	} else if !occupied {
-		if err := db.Create(*path); err != nil {
-			return err
-		}
+	if err = db.Prepare(*path); err != nil {
+		log.Fatal(err)
 	}
-
-	log.Printf("using a database file at %s", *path)
+	defer db.Close()
 
 	server := NewServer(*ip, *port)
-	return server.ListenAndServe()
+	err = server.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

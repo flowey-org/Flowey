@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -8,6 +9,8 @@ import (
 
 	"flowey/utils"
 )
+
+var db *sql.DB
 
 func Main(args []string) {
 	defaultPath, err := utils.GetDefaultPath()
@@ -20,8 +23,8 @@ func Main(args []string) {
 
 	flagSet.Usage = func() {
 		fmt.Fprintln(os.Stderr, `Usage of flowey db:
-  add    add a user to the database
-  init   initialize a new database`)
+  add       add a user to the database
+  prepare   prepare a database`)
 		fmt.Fprintln(os.Stderr)
 		flagSet.PrintDefaults()
 	}
@@ -36,16 +39,14 @@ func Main(args []string) {
 
 	switch flagSet.Arg(0) {
 	case "add":
-		if err := Add(nextArgs, *path); err != nil {
+		if err := AddCmd(nextArgs, *path); err != nil {
 			log.Fatal(err)
 		}
-		return
-	case "init":
-		if err := Init(nextArgs, *path); err != nil {
+	case "prepare":
+		if err := PrepareCmd(nextArgs, *path); err != nil {
 			log.Fatal(err)
 		}
-		return
+	default:
+		flagSet.Usage()
 	}
-
-	flagSet.Usage()
 }

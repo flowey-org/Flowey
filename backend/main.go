@@ -34,13 +34,11 @@ func main() {
 	switch args[0] {
 	case "db":
 		db.Main(nextArgs)
-		return
 	case "server":
 		if err := server.Main(); err != nil {
 			log.Fatal(err)
 		}
-		return
+	default:
+		flagSet.Usage()
 	}
-
-	flagSet.Usage()
 }

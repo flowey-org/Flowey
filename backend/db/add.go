@@ -2,10 +2,10 @@ package db
 
 import (
 	"crypto/rand"
-	"database/sql"
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"golang.org/x/crypto/bcrypt"
@@ -40,17 +40,7 @@ func hash(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func add(path string, username string, passwordLength int) error {
-	db, err := sql.Open("sqlite3", path)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if err := db.Ping(); err != nil {
-		return err
-	}
-
+func Add(username string, passwordLength int) error {
 	fmt.Printf("username: %s\n", username)
 
 	password, err := generatePassword(passwordLength)
@@ -76,7 +66,7 @@ func add(path string, username string, passwordLength int) error {
 	return nil
 }
 
-func Add(args []string, path string) error {
+func AddCmd(args []string, path string) error {
 	flagSet := flag.NewFlagSet("flowey db add", flag.ExitOnError)
 	passwordLength := flagSet.Int("l", 40, "password length")
 	skipConfirmation := flagSet.Bool("y", false, "skip confirmation")
@@ -97,6 +87,11 @@ func Add(args []string, path string) error {
 		return nil
 	}
 
+	if err := Prepare(path); err != nil {
+		log.Fatal(err)
+	}
+	defer Close()
+
 	username := flagSet.Arg(0)
-	return add(path, username, *passwordLength)
+	return Add(username, *passwordLength)
 }
