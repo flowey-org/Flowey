@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -18,10 +17,8 @@ type connection struct {
 	request *http.Request
 }
 
-func (connection *connection) handleFrame() error {
-	ctx := context.Background()
-
-	messageType, reader, err := connection.Reader(ctx)
+func (connection *connection) handleFrame(ctx context.Context) error {
+	messageType, message, err := connection.Read(ctx)
 	if err != nil {
 		var closeError websocket.CloseError
 		if errors.As(err, &closeError) {
@@ -34,17 +31,10 @@ func (connection *connection) handleFrame() error {
 		return err
 	}
 
-	writer, err := connection.Writer(ctx, messageType)
-	if err != nil {
-		return err
-	}
+	_ = messageType
+	_ = message
 
-	_, err = io.Copy(writer, reader)
-	if err != nil {
-		return err
-	}
-
-	return writer.Close()
+	return nil
 }
 
 type handler struct {
@@ -69,8 +59,9 @@ func (handler *handler) handle(writer http.ResponseWriter, request *http.Request
 
 	log.Printf("opened a connection with %v", request.RemoteAddr)
 
+	ctx := context.Background()
 	for {
-		err := connection.handleFrame()
+		err := connection.handleFrame(ctx)
 		if err != nil {
 			return err
 		}
