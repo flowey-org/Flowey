@@ -29,7 +29,7 @@ func generatePassword(length int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(bytePassword), nil
+	return base64.URLEncoding.EncodeToString(bytePassword), nil
 }
 
 func hash(password string) (string, error) {
