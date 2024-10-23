@@ -40,6 +40,8 @@ export class State {
   isReverseOn = ref(false);
   maxTime = new MaxTime();
   targetDate = ref(Date.now());
+  endpoint = ref("");
+  username = ref("");
 
   * [Symbol.iterator]() {
     for (const property in this) {

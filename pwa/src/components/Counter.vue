@@ -14,6 +14,7 @@ import IncreaseMaxTimeButton from "@/components/buttons/IncreaseMaxTimeButton.vu
 import ReverseButton from "@/components/buttons/ReverseButton.vue";
 import StartButton from "@/components/buttons/StartButton.vue";
 import StopButton from "@/components/buttons/StopButton.vue";
+import SyncButton from "@/components/buttons/SyncButton.vue";
 
 import { state } from "@/store";
 import { formatSeconds } from "@/utils";
@@ -125,11 +126,13 @@ function nextBuff() {
       <BuffButton @click="nextBuff" />
       <IncreaseMaxTimeButton @click="() => state.maxTime.increment()" />
       <DecreaseMaxTimeButton @click="() => state.maxTime.decrement()" />
+      <SyncButton />
     </Block>
     <Block v-else-if="view === 'gameOn'">
       <ReverseButton @click="reverseTime" />
       <BuffButton @click="nextBuff" />
       <StopButton @click="toggleStopping" />
+      <SyncButton />
     </Block>
     <Block v-else-if="view === 'stopping'">
       <Text>You sure?</Text>
