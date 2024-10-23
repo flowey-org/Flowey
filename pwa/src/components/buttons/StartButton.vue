@@ -7,19 +7,19 @@ import Button from "@/components/Button.vue";
 <template>
   <Button @click="$emit('click')">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path class="background" d="M 17.5,6.5 H 6.5 v 11 h 11 z" fill="none" />
-      <path d="M 9.375,9.375 H 8.5 v 5.25 h 0.875 z" fill="black" />
-      <path d="M 9.375,8.5 V 9.375 H 11.125 V 8.5 Z" fill="black" />
-      <path d="M 9.375,14.625 V 15.5 h 1.75 v -0.875 z" fill="black" />
-      <path d="m 11.125,13.75 v 0.875 h 1.75 v -0.875 z" fill="black" />
-      <path d="m 12.875,12.875 v 0.875 h 1.75 v -0.875 z" fill="black" />
-      <path d="m 11.125,9.375 v 0.875 h 1.75 V 9.375 Z" fill="black" />
-      <path d="m 12.875,10.25 v 0.875 h 1.75 v -0.875 z" fill="black" />
-      <path d="M 14.625,12.875 H 15.5 v -1.75 h -0.875 z" fill="black" />
-      <path d="m 6.5,5.5 v 1 h 11 v -1 z" fill="black" />
-      <path d="m 18.5,6.5 h -1 v 11 h 1 z" fill="black" />
-      <path d="m 6.5,17.5 v 1 h 11 v -1 z" fill="black" />
-      <path d="m 5.5,17.5 h 1 v -11 h -1 z" fill="black" />
+      <path class="background" d="M 22.153846,1.8461538 H 1.8461538 V 22.153846 H 22.153846 Z" fill="none" />
+      <path d="M 7.1538462,7.1538462 H 5.5384615 v 9.6923078 h 1.6153847 z" fill="#000000" />
+      <path d="M 7.1538462,5.5384615 V 7.1538462 H 10.384615 V 5.5384615 Z" fill="#000000" />
+      <path d="m 7.1538462,16.846154 v 1.615384 h 3.2307688 v -1.615384 z" fill="#000000" />
+      <path d="m 10.384615,15.230769 v 1.615385 h 3.23077 v -1.615385 z" fill="#000000" />
+      <path d="m 13.615385,13.615385 v 1.615384 h 3.230769 v -1.615384 z" fill="#000000" />
+      <path d="m 10.384615,7.1538462 v 1.6153846 h 3.23077 V 7.1538462 Z" fill="#000000" />
+      <path d="m 13.615385,8.7692308 v 1.6153842 h 3.230769 V 8.7692308 Z" fill="#000000" />
+      <path d="m 16.846154,13.615385 h 1.615384 v -3.23077 h -1.615384 z" fill="#000000" />
+      <path d="M 1.8461538,0 V 1.8461538 H 22.153846 V 0 Z" fill="#000000" />
+      <path d="M 24,1.8461538 H 22.153846 V 22.153846 H 24 Z" fill="#000000" />
+      <path d="M 1.8461538,22.153846 V 24 H 22.153846 v -1.846154 z" fill="#000000" />
+      <path d="M 0,22.153846 H 1.8461538 V 1.8461538 H 0 Z" fill="#000000" />
     </svg>
   </Button>
 </template>

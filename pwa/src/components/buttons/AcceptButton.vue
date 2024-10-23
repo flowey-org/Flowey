@@ -7,18 +7,18 @@ import Button from "@/components/Button.vue";
 <template>
   <Button @click="$emit('click')">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path class="background" d="M 17.5,6.5 H 6.5 v 11 h 11 z" fill="none" />
-      <path d="m 13.5,11.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="m 12.5,12.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="m 14.5,10.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="m 15.5,9.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="m 11.5,13.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="M 9.5,11.5 H 8.5 v 1 H 9.5 Z" fill="black" />
-      <path d="m 10.5,12.5 h -1 v 1 h 1 z" fill="black" />
-      <path d="m 6.5,5.5 v 1 h 11 v -1 z" fill="black" />
-      <path d="m 18.5,6.5 h -1 v 11 h 1 z" fill="black" />
-      <path d="m 6.5,17.5 v 1 h 11 v -1 z" fill="black" />
-      <path d="m 5.5,17.5 h 1 v -11 h -1 z" fill="black" />
+      <path class="background" d="M 22.153846,1.8461538 H 1.8461538 V 22.153846 H 22.153846 Z" fill="none" />
+      <path d="m 14.769231,11.076923 h -1.846154 v 1.846154 h 1.846154 z" fill="#000000" />
+      <path d="m 12.923077,12.923077 h -1.846154 v 1.846154 h 1.846154 z" fill="#000000" />
+      <path d="m 16.615385,9.2307692 h -1.846154 v 1.8461538 h 1.846154 z" fill="#000000" />
+      <path d="m 18.461538,7.3846154 h -1.846153 v 1.8461538 h 1.846153 z" fill="#000000" />
+      <path d="M 11.076923,14.769231 H 9.2307692 v 1.846154 h 1.8461538 z" fill="#000000" />
+      <path d="M 7.3846154,11.076923 H 5.5384615 v 1.846154 h 1.8461539 z" fill="#000000" />
+      <path d="M 9.2307692,12.923077 H 7.3846154 v 1.846154 h 1.8461538 z" fill="#000000" />
+      <path d="M 1.8461538,0 V 1.8461538 H 22.153846 V 0 Z" fill="#000000" />
+      <path d="M 24,1.8461538 H 22.153846 V 22.153846 H 24 Z" fill="#000000" />
+      <path d="M 1.8461538,22.153846 V 24 H 22.153846 v -1.846154 z" fill="#000000" />
+      <path d="M 0,22.153846 H 1.8461538 V 1.8461538 H 0 Z" fill="#000000" />
     </svg>
   </Button>
 </template>
