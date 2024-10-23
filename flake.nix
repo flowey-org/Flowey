@@ -18,6 +18,8 @@
           nil
           nixfmt-rfc-style
 
+          ios-safari-remote-debug
+          ios-webkit-debug-proxy
           nodejs_latest
           typescript-language-server
           vscode-langservers-extracted
