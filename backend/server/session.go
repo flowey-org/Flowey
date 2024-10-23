@@ -47,6 +47,7 @@ func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *ht
 	http.SetCookie(writer, &http.Cookie{
 		Name:     "flowey_session_key",
 		Value:    sessionKey,
+		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
 		MaxAge:   34560000,
@@ -54,6 +55,7 @@ func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *ht
 	http.SetCookie(writer, &http.Cookie{
 		Name:     "flowey_session_key_present",
 		Value:    "true",
+		Path:     "/",
 		HttpOnly: false,
 		Secure:   true,
 		MaxAge:   34560000,
