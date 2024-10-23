@@ -45,10 +45,18 @@ func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *ht
 	}
 
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "session_key",
+		Name:     "flowey_session_key",
 		Value:    sessionKey,
 		HttpOnly: true,
 		Secure:   true,
+		MaxAge:   34560000,
+	})
+	http.SetCookie(writer, &http.Cookie{
+		Name:     "flowey_session_key_present",
+		Value:    "true",
+		HttpOnly: false,
+		Secure:   true,
+		MaxAge:   34560000,
 	})
 	writer.WriteHeader(http.StatusOK)
 }
