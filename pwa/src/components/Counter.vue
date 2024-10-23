@@ -85,7 +85,7 @@ watchEffect(() => {
 
 function reverseTime() {
   let difference = currentDifference.value;
-  (difference > 0) && (difference /= state.buff.value);
+  difference > 0 && (difference /= state.buff.value);
   state.targetDate.value = nowTime.value - difference;
 
   state.isReverseOn.value = !state.isReverseOn.value;
@@ -111,7 +111,7 @@ function nextBuff() {
   const difference = state.targetDate.value - nowTime.value;
   let distance = Math.abs(difference);
   if (difference < 0) {
-    distance = distance * prevBuff / buff;
+    distance = (distance * prevBuff) / buff;
     state.targetDate.value = nowTime.value - distance;
   }
 }
@@ -120,18 +120,18 @@ function nextBuff() {
 <template>
   <Box>
     <Timer :time />
-    <Block v-if="view==='gameOff'">
+    <Block v-if="view === 'gameOff'">
       <StartButton @click="startGame" />
       <BuffButton @click="nextBuff" />
       <IncreaseMaxTimeButton @click="() => state.maxTime.increment()" />
       <DecreaseMaxTimeButton @click="() => state.maxTime.decrement()" />
     </Block>
-    <Block v-else-if="view==='gameOn'">
+    <Block v-else-if="view === 'gameOn'">
       <ReverseButton @click="reverseTime" />
       <BuffButton @click="nextBuff" />
       <StopButton @click="toggleStopping" />
     </Block>
-    <Block v-else-if="view==='stopping'">
+    <Block v-else-if="view === 'stopping'">
       <Text>You sure?</Text>
       <AcceptButton @click="stopGame" />
       <CancelButton @click="toggleStopping" />
