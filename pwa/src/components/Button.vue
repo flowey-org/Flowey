@@ -11,12 +11,21 @@ defineEmits<{ click: [] }>();
 <style>
 button {
   all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--timer-font-size) / 1.75);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
 button > svg {
-  height: var(--timer-font-size);
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 button > svg > .background {
