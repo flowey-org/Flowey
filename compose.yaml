@@ -9,7 +9,6 @@ services:
           action: rebuild
     restart: unless-stopped
     networks:
-      - landing
       - traefik
     labels:
       - traefik.enable=true
@@ -23,9 +22,12 @@ services:
           action: rebuild
     restart: unless-stopped
     networks:
-      - service
+      - traefik
     volumes:
       - db:/home/flowey/.local/share/flowey
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
   pwa:
     build: pwa
     image: ghcr.io/flowey-org/pwa:latest
@@ -34,17 +36,12 @@ services:
         - path: pwa
           action: rebuild
     networks:
-      - service
       - traefik
     restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
 networks:
-  landing:
-    driver: bridge
-  service:
-    driver: bridge
   traefik:
     external: true
 volumes:
