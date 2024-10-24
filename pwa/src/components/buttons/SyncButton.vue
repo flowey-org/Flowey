@@ -11,7 +11,6 @@ const isModalOpen = ref(false);
 const isSubmitting = ref(false);
 const password = ref("");
 const errorMessage = ref("");
-const isLoggedIn = ref(false);
 
 function openModal() {
   isModalOpen.value = true;
@@ -28,11 +27,11 @@ function checkLoginStatus() {
   for (const cookie of cookies) {
     if (cookie.startsWith("flowey_session_key_present")) {
       password.value = "";
-      isLoggedIn.value = true;
+      state.isLoggedIn.value = true;
       return;
     }
   }
-  isLoggedIn.value = false;
+  state.isLoggedIn.value = false;
 }
 
 async function handleSubmit() {
@@ -59,7 +58,7 @@ async function handleSubmit() {
 
   if (response.ok) {
     checkLoginStatus();
-    if (!isLoggedIn.value) {
+    if (!state.isLoggedIn.value) {
       errorMessage.value = "Login failed: no session key received.";
     }
   } else {
@@ -103,7 +102,7 @@ async function handleLogout() {
 
   if (response.ok) {
     checkLoginStatus();
-    if (isLoggedIn.value) {
+    if (state.isLoggedIn.value) {
       errorMessage.value = "Logout failed: session key is not invalidated.";
     }
   } else {
@@ -133,7 +132,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <Button @click="openModal">
+  <Button
+    :class="!state.isLoggedIn.value && 'suggested'"
+    @click="openModal"
+  >
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path class="background" d="M 22.153846,1.8461538 H 1.8461538 V 22.153846 H 22.153846 Z" fill="none" />
       <!-- eslint-disable-next-line max-len -->
@@ -151,7 +153,7 @@ onMounted(() => {
           <h2>Sync</h2>
           <CancelButton @click="closeModal" />
         </div>
-        <template v-if="!isLoggedIn">
+        <template v-if="!state.isLoggedIn.value">
           <form @submit.prevent="handleSubmit">
             <div class="form-group">
               <label for="endpoint">Endpoint:</label>
