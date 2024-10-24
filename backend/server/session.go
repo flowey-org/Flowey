@@ -15,7 +15,7 @@ type Credentials struct {
 
 type sessionHandler struct{}
 
-func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *http.Request) {
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		http.Error(writer, "failed to read the request body", http.StatusBadRequest)
@@ -61,4 +61,41 @@ func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *ht
 		MaxAge:   34560000,
 	})
 	writer.WriteHeader(http.StatusOK)
+}
+
+func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request *http.Request) {
+	cookie, err := request.Cookie("flowey_session_key")
+
+	if err == nil {
+		db.DeleteSessionKey(cookie.Value)
+	}
+
+	http.SetCookie(writer, &http.Cookie{
+		Name:     "flowey_session_key",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
+	})
+	http.SetCookie(writer, &http.Cookie{
+		Name:     "flowey_session_key_present",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: false,
+		Secure:   true,
+		MaxAge:   -1,
+	})
+	writer.WriteHeader(http.StatusOK)
+}
+
+func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	switch request.Method {
+	case http.MethodPost:
+		handler.handlePost(writer, request)
+	case http.MethodDelete:
+		handler.handleDelete(writer, request)
+	default:
+		writer.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
