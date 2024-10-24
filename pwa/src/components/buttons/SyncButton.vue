@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 import Button from "@/components/Button.vue";
 
@@ -85,6 +85,11 @@ async function handleSubmit() {
 
 onMounted(() => {
   checkLoginStatus();
+  watch(isModalOpen, (isOpen) => {
+    if (isOpen) {
+      checkLoginStatus();
+    }
+  });
 });
 </script>
 
