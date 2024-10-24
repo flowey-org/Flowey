@@ -8,6 +8,11 @@ import (
 	"flowey/db"
 )
 
+const (
+	sessionKeyCookieName        = "flowey_session_key"
+	sessionKeyPresentCookieName = "flowey_session_key_present"
+)
+
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -45,7 +50,7 @@ func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *h
 	}
 
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "flowey_session_key",
+		Name:     sessionKeyCookieName,
 		Value:    sessionKey,
 		Path:     "/",
 		HttpOnly: true,
@@ -53,7 +58,7 @@ func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *h
 		MaxAge:   34560000,
 	})
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "flowey_session_key_present",
+		Name:     sessionKeyPresentCookieName,
 		Value:    "true",
 		Path:     "/",
 		HttpOnly: false,
@@ -71,7 +76,7 @@ func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request 
 	}
 
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "flowey_session_key",
+		Name:     sessionKeyCookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
@@ -79,7 +84,7 @@ func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request 
 		MaxAge:   -1,
 	})
 	http.SetCookie(writer, &http.Cookie{
-		Name:     "flowey_session_key_present",
+		Name:     sessionKeyPresentCookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: false,
