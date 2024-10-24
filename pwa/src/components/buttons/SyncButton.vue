@@ -84,6 +84,44 @@ async function handleSubmit() {
   isSubmitting.value = false;
 }
 
+async function handleLogout() {
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
+  errorMessage.value = "";
+
+  let response: Response;
+  try {
+    response = await fetch(state.endpoint.value, {
+      method: "DELETE",
+      credentials: "include",
+    });
+  } catch {
+    errorMessage.value = "Logout failed: refused to connect to the endpoint.";
+    isSubmitting.value = false;
+    return;
+  }
+
+  if (response.ok) {
+    checkLoginStatus();
+    if (isLoggedIn.value) {
+      errorMessage.value = "Logout failed: session key is not invalidated.";
+    }
+  } else {
+    switch (response.status) {
+      case 404:
+        errorMessage.value = "Login failed: couldn't reach the endpoint.";
+        break;
+      case 500:
+        errorMessage.value = "Login failed: internal server error.";
+        break;
+      default:
+        errorMessage.value = "Login failed: unexpected response.";
+    }
+  }
+
+  isSubmitting.value = false;
+}
+
 onMounted(() => {
   checkLoginStatus();
   watch(isModalOpen, (isOpen) => {
@@ -133,6 +171,14 @@ onMounted(() => {
         </template>
         <template v-else>
           <p>You're logged in as <em>{{ state.username.value }}</em>.</p>
+          <form @submit.prevent="handleLogout">
+            <div class="form-group">
+              <label for="endpoint">Endpoint:</label>
+              <input id="endpoint" v-model="state.endpoint.value" type="url" required>
+            </div>
+            <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+            <button type="submit" :disabled="isSubmitting">Logout</button>
+          </form>
         </template>
       </div>
     </div>
