@@ -38,6 +38,20 @@ func Authenticate(username string, password string) (int, error) {
 	return userID, nil
 }
 
+func Authorize(sessionKey string) error {
+	query := `SELECT session_key FROM sessions WHERE session_key = ?`
+	err := db.QueryRow(query, sessionKey).Scan(&sessionKey)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return Unathorized
+		}
+		log.Println(err)
+		return InternalServerError
+	}
+
+	return nil
+}
+
 func CreateSessionKey(userID int) (string, error) {
 	byteSessionKey := make([]byte, 40)
 	if _, err := rand.Read(byteSessionKey); err != nil {
