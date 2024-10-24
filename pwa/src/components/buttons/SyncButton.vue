@@ -242,12 +242,19 @@ onMounted(() => {
 }
 
 .modal-content > form > button[type="submit"] {
+  --s: 3px;
   background-color: var(--color-button);
   padding: 0.5rem 1rem;
-  border: none;
+  border: solid var(--s);
   border-radius: 4px;
   cursor: pointer;
   height: 100%;
+  clip-path: polygon(
+    0 var(--s), var(--s) var(--s), var(--s) 0,
+    calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--s), 100% var(--s),
+    100% calc(100% - var(--s)), calc(100% - var(--s)) calc(100% - var(--s)), calc(100% - var(--s)) 100%,
+    var(--s) 100%, var(--s) calc(100% - var(--s)), 0 calc(100% - var(--s))
+  );
 }
 
 .modal-content > form > button[type="submit"]:is(:focus-visible, :hover) {
