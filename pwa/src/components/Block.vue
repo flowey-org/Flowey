@@ -10,7 +10,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: var(--timer-font-size);
+  height: calc(var(--timer-font-size) / 1.75);
   gap: calc(var(--timer-font-size) / 2.25);
 }
 </style>

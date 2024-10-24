@@ -12,5 +12,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: calc(var(--timer-font-size) / 4.5);
 }
 </style>

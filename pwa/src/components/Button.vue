@@ -20,7 +20,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(var(--timer-font-size) / 1.75);
+  height: 100%;
   padding: 1px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
