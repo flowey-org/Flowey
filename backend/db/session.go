@@ -46,12 +46,23 @@ func CreateSessionKey(userID int) (string, error) {
 	}
 	sessionKey := base64.URLEncoding.EncodeToString(byteSessionKey)
 
-    query := `INSERT INTO sessions (session_key, user_id) VALUES (?, ?)`
-    _, err := db.Exec(query, sessionKey, userID)
-    if err != nil {
+	query := `INSERT INTO sessions (session_key, user_id) VALUES (?, ?)`
+	_, err := db.Exec(query, sessionKey, userID)
+	if err != nil {
 		log.Println(err)
-        return "", fmt.Errorf("failed to store a session key")
-    }
+		return "", fmt.Errorf("failed to store a session key")
+	}
 
-    return sessionKey, nil
+	return sessionKey, nil
+}
+
+func DeleteSessionKey(sessionKey string) error {
+	query := `DELETE FROM sessions WHERE session_key = ?`
+	_, err := db.Exec(query, sessionKey)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	return nil
 }
