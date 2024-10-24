@@ -27,6 +27,7 @@ function checkLoginStatus() {
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     if (cookie.startsWith("flowey_session_key_present")) {
+      password.value = "";
       isLoggedIn.value = true;
       return;
     }
