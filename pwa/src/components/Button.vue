@@ -9,34 +9,42 @@ defineEmits<{ click: [] }>();
 </template>
 
 <style>
+:root {
+  --color-button: #a6dd8e;
+  --color-button-disabled: #a2aebb;
+  --color-button-suggested: #ff8c42;
+}
+
 button {
   all: unset;
   display: flex;
   align-items: center;
   justify-content: center;
   height: calc(var(--timer-font-size) / 1.75);
+  padding: 1px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
 button > svg {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 button > svg > .background {
-  fill: #a6dd8e
+  fill: var(--color-button);
 }
 
 button.suggested > svg > .background {
-  fill: #ff8c42
+  fill: var(--color-button-suggested);
 }
 
 button:disabled > svg > .background {
-  fill: #a2aebb
+  fill: var(--color-button-disabled);
+  cursor: not-allowed;
+}
+
+button:not(button:disabled):is(:focus-visible, :hover) > svg > .background {
+  filter: brightness(0.9);
 }
 </style>

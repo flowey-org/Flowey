@@ -242,8 +242,7 @@ onMounted(() => {
 }
 
 .modal-content > form > button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--color-button);
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -251,13 +250,13 @@ onMounted(() => {
   height: 100%;
 }
 
-.modal-content > form > button[type="submit"]:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.modal-content > form > button[type="submit"]:is(:focus-visible, :hover) {
+  filter: brightness(0.9);
 }
 
-.modal-content > form > button[type="submit"]:hover:not(:disabled) {
-  background-color: #45a049;
+.modal-content > form > button[type="submit"]:disabled {
+  background-color: var(--color-button-disabled);
+  cursor: not-allowed;
 }
 
 .modal-content > form > .error {
