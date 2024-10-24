@@ -186,6 +186,10 @@ onMounted(() => {
 </template>
 
 <style>
+:root {
+  --border-size: 3px;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -236,19 +240,29 @@ onMounted(() => {
 }
 
 .modal-content > form > .form-group > input {
+  --s: var(--border-size);
+  box-sizing: border-box;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: solid var(--s) #ccc;
   border-radius: 4px;
+  height: 2rem;
+  clip-path: polygon(
+    0 var(--s), var(--s) var(--s), var(--s) 0,
+    calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--s), 100% var(--s),
+    100% calc(100% - var(--s)), calc(100% - var(--s)) calc(100% - var(--s)), calc(100% - var(--s)) 100%,
+    var(--s) 100%, var(--s) calc(100% - var(--s)), 0 calc(100% - var(--s))
+  );
 }
 
 .modal-content > form > button[type="submit"] {
-  --s: 3px;
+  --s: var(--border-size);
+  box-sizing: border-box;
   background-color: var(--color-button);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   border: solid var(--s);
   border-radius: 4px;
   cursor: pointer;
-  height: 100%;
+  height: 2rem;
   clip-path: polygon(
     0 var(--s), var(--s) var(--s), var(--s) 0,
     calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--s), 100% var(--s),
