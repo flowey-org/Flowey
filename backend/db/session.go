@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	AuthenticateErrCredentials = errors.New("invalid credentials")
-	AuthenticateErrQuery       = errors.New("failed to query the user")
+	Unathorized         = errors.New("unauthorized")
+	InternalServerError = errors.New("internal server error")
 )
 
 func Authenticate(username string, password string) (int, error) {
@@ -24,15 +24,15 @@ func Authenticate(username string, password string) (int, error) {
 	err := db.QueryRow(query, username).Scan(&userID, &hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return -1, AuthenticateErrCredentials
+			return -1, Unathorized
 		}
 		log.Println(err)
-		return -1, AuthenticateErrQuery
+		return -1, InternalServerError
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		return -1, AuthenticateErrCredentials
+		return -1, Unathorized
 	}
 
 	return userID, nil

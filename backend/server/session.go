@@ -30,10 +30,10 @@ func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *h
 	}
 
 	userID, err := db.Authenticate(credentials.Username, credentials.Password)
-	if err == db.AuthenticateErrCredentials {
+	if err == db.Unathorized {
 		http.Error(writer, err.Error(), http.StatusUnauthorized)
 		return
-	} else if err == db.AuthenticateErrQuery {
+	} else if err == db.InternalServerError {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
