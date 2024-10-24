@@ -9,6 +9,8 @@ import (
 	"sync"
 
 	"github.com/coder/websocket"
+
+	"flowey/db"
 )
 
 type connection struct {
@@ -69,9 +71,26 @@ func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Reque
 }
 
 func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	sessionKey, err := request.Cookie(sessionKeyCookieName)
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	err = db.Authorize(sessionKey.Value)
+	if err != nil {
+		switch err {
+		case db.Unathorized:
+			writer.WriteHeader(http.StatusUnauthorized)
+		case db.InternalServerError:
+			writer.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
 	handler.waitGroup.Add(1)
 
-	err := handler.handle(writer, request)
+	err = handler.handle(writer, request)
 	if err != nil {
 		log.Println(err)
 		return
