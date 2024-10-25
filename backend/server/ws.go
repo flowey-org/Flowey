@@ -77,7 +77,7 @@ func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	err = db.Authorize(sessionKey.Value)
+	_, err = db.AuthenticateBySessionKey(sessionKey.Value)
 	if err != nil {
 		switch err {
 		case db.Unathorized:

@@ -43,18 +43,20 @@ func AuthenticateByCredentials(credentials Credentials) (int, error) {
 	return userID, nil
 }
 
-func Authorize(sessionKey string) error {
-	query := `SELECT session_key FROM sessions WHERE session_key = ?`
-	err := db.QueryRow(query, sessionKey).Scan(&sessionKey)
+func AuthenticateBySessionKey(sessionKey string) (int, error) {
+	var userID int
+
+	query := `SELECT user_id FROM sessions WHERE session_key = ?`
+	err := db.QueryRow(query, sessionKey).Scan(&userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return Unathorized
+			return -1, Unathorized
 		}
 		log.Println(err)
-		return InternalServerError
+		return -1, InternalServerError
 	}
 
-	return nil
+	return userID, nil
 }
 
 func CreateSessionKey(userID int) (string, error) {
