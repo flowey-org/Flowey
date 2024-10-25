@@ -13,11 +13,6 @@ const (
 	sessionKeyPresentCookieName = "flowey_session_key_present"
 )
 
-type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type sessionHandler struct{}
 
 func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *http.Request) {
@@ -27,14 +22,14 @@ func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *h
 		return
 	}
 
-	var credentials Credentials
+	var credentials db.Credentials
 	err = json.Unmarshal(body, &credentials)
 	if err != nil {
 		http.Error(writer, "couldn't parse the body as a JSON object", http.StatusBadRequest)
 		return
 	}
 
-	userID, err := db.Authenticate(credentials.Username, credentials.Password)
+	userID, err := db.AuthenticateByCredentials(credentials)
 	if err == db.Unathorized {
 		http.Error(writer, err.Error(), http.StatusUnauthorized)
 		return

@@ -16,12 +16,17 @@ var (
 	InternalServerError = errors.New("internal server error")
 )
 
-func Authenticate(username string, password string) (int, error) {
+type Credentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func AuthenticateByCredentials(credentials Credentials) (int, error) {
 	var userID int
 	var hashedPassword string
 
 	query := `SELECT id, password FROM users WHERE username = ?`
-	err := db.QueryRow(query, username).Scan(&userID, &hashedPassword)
+	err := db.QueryRow(query, credentials.Username).Scan(&userID, &hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return -1, Unathorized
@@ -30,7 +35,7 @@ func Authenticate(username string, password string) (int, error) {
 		return -1, InternalServerError
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(credentials.Password))
 	if err != nil {
 		return -1, Unathorized
 	}
