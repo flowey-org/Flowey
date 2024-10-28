@@ -36,20 +36,23 @@ type tableInfoRow struct {
 type tableInfo = []tableInfoRow
 
 func Validate(path string) error {
-	expectedTableInfos := []tableInfo{
-		{
+	expectedTableInfos := map[string]tableInfo{
+		"users": {
 			{cid: 0, name: "id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 1},
 			{cid: 1, name: "username", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
 			{cid: 2, name: "password", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
 		},
-		{
+		"sessions": {
 			{cid: 0, name: "session_key", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 1},
 			{cid: 1, name: "user_id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 0},
 		},
+		"states": {
+			{cid: 0, name: "user_id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 1},
+			{cid: 1, name: "state", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
+		},
 	}
 
-	tableInfos := []tableInfo{}
-	for _, tableName := range []string{"users", "sessions"} {
+	for tableName, expectedTableInfo := range expectedTableInfos {
 		rows, err := db.Query(`PRAGMA table_info(` + tableName + `)`)
 		if err != nil {
 			return err
@@ -66,14 +69,10 @@ func Validate(path string) error {
 			tableInfo = append(tableInfo, r)
 		}
 
-		tableInfos = append(tableInfos, tableInfo)
-		rows.Close()
-	}
-
-	for i, expectedTableInfo := range expectedTableInfos {
-		if !slices.Equal(expectedTableInfo, tableInfos[i]) {
+		if !slices.Equal(expectedTableInfo, tableInfo) {
 			return fmt.Errorf("failed to validate the database")
 		}
+		rows.Close()
 	}
 
 	log.Printf("validated the database")
@@ -89,6 +88,10 @@ func Init(path string) error {
 CREATE TABLE sessions(
   session_key TEXT NOT NULL PRIMARY KEY,
   user_id INTEGER NOT NULL
+);
+CREATE TABLE states(
+  user_id INTEGER NOT NULL PRIMARY KEY,
+  state TEXT NOT NULL
 )`
 	if _, err := db.Exec(query); err != nil {
 		log.Println(err)
