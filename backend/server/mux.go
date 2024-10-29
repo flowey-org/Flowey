@@ -6,13 +6,15 @@ type ServeMux struct {
 	http.ServeMux
 
 	session sessionHandler
-	ws      wsHandler
+	ws      *wsHandler
 }
 
 func NewServeMux() *ServeMux {
-	mux := ServeMux{}
+	mux := ServeMux{
+		ws: newWsHandler(),
+	}
 	mux.Handle("/session", &mux.session)
-	mux.Handle("GET /ws", &mux.ws)
+	mux.Handle("GET /ws", mux.ws)
 	return &mux
 }
 

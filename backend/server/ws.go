@@ -39,9 +39,45 @@ func (connection *connection) handleFrame(ctx context.Context) error {
 	return nil
 }
 
+type connections struct {
+	data  map[*connection]bool
+	mutex sync.Mutex
+}
+
+func newConnections() connections {
+	return connections{data: make(map[*connection]bool)}
+}
+
+func (connections *connections) store(key *connection, value bool) {
+	connections.mutex.Lock()
+	connections.data[key] = value
+	connections.mutex.Unlock()
+}
+
+func (connections *connections) delete(key *connection) {
+	connections.mutex.Lock()
+	delete(connections.data, key)
+	connections.mutex.Unlock()
+}
+
+func (connections *connections) close() {
+	connections.mutex.Lock()
+	defer connections.mutex.Unlock()
+
+	for connection := range connections.data {
+		connection.Close(websocket.StatusNormalClosure, "server shutting down")
+	}
+}
+
 type wsHandler struct {
-	connections sync.Map
+	connections connections
 	waitGroup   sync.WaitGroup
+}
+
+func newWsHandler() *wsHandler {
+	return &wsHandler{
+		connections: newConnections(),
+	}
 }
 
 func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Request) error {
@@ -56,8 +92,8 @@ func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Reque
 	connection := connection{conn, writer, request}
 	defer connection.CloseNow()
 
-	handler.connections.Store(connection, true)
-	defer handler.connections.Delete(connection)
+	handler.connections.store(&connection, true)
+	defer handler.connections.delete(&connection)
 
 	log.Printf("opened a connection with %v", request.RemoteAddr)
 
@@ -98,14 +134,6 @@ func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Re
 }
 
 func (handler *wsHandler) close() {
-	for key, _ := range handler.connections.Range {
-		connection, ok := key.(connection)
-		if !ok {
-			return
-		}
-
-		connection.Close(websocket.StatusNormalClosure, "server shutting down")
-	}
-
+	handler.connections.close()
 	handler.waitGroup.Wait()
 }
