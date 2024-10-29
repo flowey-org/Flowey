@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -9,8 +8,6 @@ import (
 
 	"flowey/utils"
 )
-
-var db *sql.DB
 
 func Main(args []string) {
 	defaultPath, err := utils.GetDefaultPath()

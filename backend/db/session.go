@@ -22,7 +22,7 @@ type Credentials struct {
 }
 
 func AuthenticateByCredentials(credentials Credentials) (int, error) {
-	var userID int
+	var userID UserID
 	var hashedPassword string
 
 	query := `SELECT id, password FROM users WHERE username = ?`
@@ -44,7 +44,7 @@ func AuthenticateByCredentials(credentials Credentials) (int, error) {
 }
 
 func AuthenticateBySessionKey(sessionKey string) (int, error) {
-	var userID int
+	var userID UserID
 
 	query := `SELECT user_id FROM sessions WHERE session_key = ?`
 	err := db.QueryRow(query, sessionKey).Scan(&userID)
@@ -59,7 +59,7 @@ func AuthenticateBySessionKey(sessionKey string) (int, error) {
 	return userID, nil
 }
 
-func CreateSessionKey(userID int) (string, error) {
+func CreateSessionKey(userID UserID) (string, error) {
 	byteSessionKey := make([]byte, 40)
 	if _, err := rand.Read(byteSessionKey); err != nil {
 		log.Println(err)
