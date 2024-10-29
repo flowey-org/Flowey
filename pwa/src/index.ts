@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 
 import App from "./components/App.vue";
+import { ws } from "./ws";
 
 if ("storage" in navigator && "persist" in navigator.storage) {
   const isPersisted = await navigator.storage.persist();
@@ -15,4 +16,8 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-createApp(App).mount("#app");
+const app = createApp(App);
+
+app.config.globalProperties["ws"] = ws;
+
+app.mount("#app");
