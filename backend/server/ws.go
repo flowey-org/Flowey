@@ -39,33 +39,52 @@ func (connection *connection) handleFrame(ctx context.Context) error {
 	return nil
 }
 
+type userConnections = map[*connection]bool
+
+func newUserConnections() userConnections {
+	return make(map[*connection]bool)
+}
+
 type connections struct {
-	data  map[*connection]bool
+	dict  map[db.UserID]userConnections
 	mutex sync.RWMutex
 }
 
 func newConnections() connections {
-	return connections{data: make(map[*connection]bool)}
+	return connections{dict: make(map[db.UserID]userConnections)}
 }
 
-func (connections *connections) store(key *connection, value bool) {
+func (connections *connections) store(userID db.UserID, connection *connection) {
 	connections.mutex.Lock()
-	connections.data[key] = value
-	connections.mutex.Unlock()
+	defer connections.mutex.Unlock()
+
+	if userConnections, ok := connections.dict[userID]; ok {
+		userConnections[connection] = true
+		return
+	}
+
+	userConnections := newUserConnections()
+	userConnections[connection] = true
+	connections.dict[userID] = userConnections
 }
 
-func (connections *connections) delete(key *connection) {
+func (connections *connections) delete(userID db.UserID, connection *connection) {
 	connections.mutex.Lock()
-	delete(connections.data, key)
-	connections.mutex.Unlock()
+	defer connections.mutex.Unlock()
+
+	if userConnections, ok := connections.dict[userID]; ok {
+		delete(userConnections, connection)
+	}
 }
 
 func (connections *connections) close() {
 	connections.mutex.RLock()
 	defer connections.mutex.RUnlock()
 
-	for connection := range connections.data {
-		connection.Close(websocket.StatusNormalClosure, "server shutting down")
+	for _, userConnections := range connections.dict {
+		for connection := range userConnections {
+			connection.Close(websocket.StatusNormalClosure, "server shutting down")
+		}
 	}
 }
 
@@ -80,7 +99,7 @@ func newWsHandler() *wsHandler {
 	}
 }
 
-func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Request) error {
+func (handler *wsHandler) handle(userID db.UserID, writer http.ResponseWriter, request *http.Request) error {
 	defer handler.waitGroup.Done()
 
 	options := websocket.AcceptOptions{InsecureSkipVerify: true}
@@ -92,8 +111,8 @@ func (handler *wsHandler) handle(writer http.ResponseWriter, request *http.Reque
 	connection := connection{conn, writer, request}
 	defer connection.CloseNow()
 
-	handler.connections.store(&connection, true)
-	defer handler.connections.delete(&connection)
+	handler.connections.store(userID, &connection)
+	defer handler.connections.delete(userID, &connection)
 
 	log.Printf("opened a connection with %v", request.RemoteAddr)
 
@@ -113,7 +132,7 @@ func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	_, err = db.AuthenticateBySessionKey(sessionKey.Value)
+	userID, err := db.AuthenticateBySessionKey(sessionKey.Value)
 	if err != nil {
 		switch err {
 		case db.Unathorized:
@@ -126,7 +145,7 @@ func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Re
 
 	handler.waitGroup.Add(1)
 
-	err = handler.handle(writer, request)
+	err = handler.handle(userID, writer, request)
 	if err != nil {
 		log.Println(err)
 		return
