@@ -41,7 +41,7 @@ func (connection *connection) handleFrame(ctx context.Context) error {
 
 type connections struct {
 	data  map[*connection]bool
-	mutex sync.Mutex
+	mutex sync.RWMutex
 }
 
 func newConnections() connections {
@@ -61,8 +61,8 @@ func (connections *connections) delete(key *connection) {
 }
 
 func (connections *connections) close() {
-	connections.mutex.Lock()
-	defer connections.mutex.Unlock()
+	connections.mutex.RLock()
+	defer connections.mutex.RUnlock()
 
 	for connection := range connections.data {
 		connection.Close(websocket.StatusNormalClosure, "server shutting down")
