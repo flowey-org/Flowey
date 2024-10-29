@@ -9,6 +9,15 @@ class Store {
   idb: IDBDatabase | null = null;
   state: State = new State();
 
+  ready: Promise<void>;
+  private resolveReady!: () => void;
+
+  constructor() {
+    this.ready = new Promise<void>((resolve) => {
+      this.resolveReady = resolve;
+    });
+  }
+
   async init() {
     this.idb = await this.openIndexedBD();
 
@@ -51,14 +60,23 @@ class Store {
           .transaction(OBJECT_STORE_NAME, "readonly")
           .objectStore(OBJECT_STORE_NAME);
 
+        let pending = 0;
+
         for (const [ref, property] of this.state) {
+          pending++;
+
           objectStore.get(property).onsuccess = (event) => {
             const value: unknown = (event.target as IDBRequest).result;
             if (value !== undefined && typeof value === typeof ref.value) {
               ref.value = value as typeof ref.value;
-              return;
+            } else {
+              this.put(ref.value, property);
             }
-            this.put(ref.value, property);
+
+            pending--;
+            if (pending === 0) {
+              this.resolveReady();
+            }
           };
         }
 
@@ -68,7 +86,7 @@ class Store {
   }
 }
 
-const store = new Store();
-await store.init();
+export const store = new Store();
+void store.init();
 
 export const state = store.state;
