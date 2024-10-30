@@ -102,7 +102,10 @@ func newWsHandler() *wsHandler {
 func (handler *wsHandler) handle(userID db.UserID, writer http.ResponseWriter, request *http.Request) error {
 	defer handler.waitGroup.Done()
 
-	options := websocket.AcceptOptions{InsecureSkipVerify: true}
+	options := websocket.AcceptOptions{
+		InsecureSkipVerify: true,
+		Subprotocols:       []string{"flowey"},
+	}
 	conn, err := websocket.Accept(writer, request, &options)
 	if err != nil {
 		return err

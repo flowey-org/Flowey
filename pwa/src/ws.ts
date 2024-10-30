@@ -13,7 +13,7 @@ class WebSocketService {
   }
 
   connect(url: URL) {
-    this.ws = new WebSocket(url);
+    this.ws = new WebSocket(url, ["flowey"]);
 
     this.ws.onopen = () => {
       console.log("[Websocket] Connected");
