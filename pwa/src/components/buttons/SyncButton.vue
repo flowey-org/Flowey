@@ -41,7 +41,7 @@ async function handleSubmit() {
 
   let response: Response;
   try {
-    response = await fetch(new URL("session", state.endpoint.value), {
+    response = await fetch(state.endpoint.value + "session/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -90,7 +90,7 @@ async function handleLogout() {
 
   let response: Response;
   try {
-    response = await fetch(new URL("session", state.endpoint.value), {
+    response = await fetch(state.endpoint.value + "session/", {
       method: "DELETE",
       credentials: "include",
     });
