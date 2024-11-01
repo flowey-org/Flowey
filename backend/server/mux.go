@@ -13,8 +13,9 @@ func NewServeMux() *ServeMux {
 	mux := ServeMux{
 		ws: newWsHandler(),
 	}
-	mux.Handle("/session", &mux.session)
-	mux.Handle("GET /ws", mux.ws)
+	mux.Handle("/{$}", http.NotFoundHandler())
+	mux.Handle("/session/{$}", &mux.session)
+	mux.Handle("GET /ws/{$}", mux.ws)
 	return &mux
 }
 
