@@ -6,11 +6,13 @@ import Button from "@/components/Button.vue";
 import CancelButton from "@/components/buttons/CancelButton.vue";
 
 import { state } from "@/store";
+import { wss } from "@/wss";
 
 const isModalOpen = ref(false);
 const isSubmitting = ref(false);
 const password = ref("");
 const errorMessage = ref("");
+const wsStatus = ref("Closed");
 
 function openModal() {
   isModalOpen.value = true;
@@ -121,11 +123,30 @@ async function handleLogout() {
   isSubmitting.value = false;
 }
 
+function checkWsStatus() {
+  wsStatus.value = wss.status();
+}
+
 onMounted(() => {
   checkLoginStatus();
+  checkWsStatus();
+
+  wss.onStatusChange(() => {
+    checkWsStatus();
+  });
+
+  watch(state.isLoggedIn, (isLoggedIn) => {
+    if (isLoggedIn) {
+      wss.connect();
+    } else {
+      wss.disconnect();
+    }
+  });
+
   watch(isModalOpen, (isOpen) => {
     if (isOpen) {
       checkLoginStatus();
+      checkWsStatus();
     }
   });
 });
@@ -173,6 +194,7 @@ onMounted(() => {
         </template>
         <template v-else>
           <p>You're logged in as <em>{{ state.username.value }}</em>.</p>
+          <p>WebSocket status: <em>{{ wsStatus }}</em>.</p>
           <form @submit.prevent="handleLogout">
             <div class="form-group">
               <label for="endpoint">Endpoint:</label>
