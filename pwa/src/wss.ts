@@ -1,0 +1,183 @@
+import { state, store } from "@/store";
+
+export class WebSocketService {
+  ws: WebSocket | null;
+
+  private connectAttempts = 0;
+  private connectMaxAttempts = 5;
+  private connectTimeout = 1000;
+  private connectTimer: number | null = null;
+
+  private statusListeners: (() => void)[] = [];
+
+  constructor() {
+    this.ws = null;
+    this.setupNetworkListeners();
+  }
+
+  async init() {
+    await store.ready;
+    this.connect();
+  }
+
+  status() {
+    if (!navigator.onLine) {
+      return "offline";
+    }
+    if (!this.ws) {
+      return "not initialized";
+    }
+    if (this.connectTimer) {
+      return "connecting";
+    }
+    switch (this.ws.readyState) {
+      case WebSocket.CONNECTING:
+        return "connecting";
+      case WebSocket.OPEN:
+        return "connected";
+      case WebSocket.CLOSING:
+        return "closing";
+      case WebSocket.CLOSED:
+        return "closed";
+      default:
+        return "unknown";
+    }
+  }
+
+  onStatusChange(callback: () => void) {
+    this.statusListeners.push(callback);
+  }
+
+  private notifyStatusChange() {
+    this.statusListeners.forEach((listener) => {
+      listener();
+    });
+  }
+
+  private resetAttempts() {
+    this.connectAttempts = 0;
+    this.connectTimeout = 1000;
+  }
+
+  private incrementAttempts() {
+    this.connectAttempts++;
+    this.connectTimeout = Math.min(this.connectTimeout * 2, 30000);
+  }
+
+  private setupNetworkListeners() {
+    window.addEventListener("online", () => {
+      console.log("[WebSocket] Network connection restored");
+      this.resetAttempts();
+      this.connect();
+    });
+
+    window.addEventListener("offline", () => {
+      console.log("[WebSocket] Network connection lost");
+      this.notifyStatusChange();
+      this.cleanup();
+    });
+  }
+
+  connect() {
+    const url = state.endpoint.value + "ws/";
+
+    console.log("[WebSocket] Attempting to connect...", {
+      reconnectAttempt: this.connectAttempts,
+      maxReconnectAttempts: this.connectMaxAttempts,
+      reconnectTimeout: this.connectTimeout,
+      url: url,
+    });
+    this.notifyStatusChange();
+
+    try {
+      this.ws = new WebSocket(url, ["flowey"]);
+
+      this.ws.onopen = () => {
+        console.log("[Websocket] Connected");
+        this.notifyStatusChange();
+
+        this.resetAttempts();
+      };
+
+      this.ws.onclose = (event) => {
+        console.log("[WebSocket] Connection closed", {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean,
+        });
+        this.notifyStatusChange();
+
+        if (!event.wasClean) {
+          this.scheduleReconnect();
+        }
+      };
+
+      this.ws.onerror = (error) => {
+        console.error("[WebSocket] Encountered error: ", error);
+        this.notifyStatusChange();
+      };
+
+      this.ws.onmessage = (event) => {
+        console.log("[WebSocket] Received message: ", event.data);
+      };
+    } catch (error) {
+      console.error("[WebSocket] Connection error:", error);
+      this.notifyStatusChange();
+
+      this.scheduleReconnect();
+    }
+  }
+
+  private scheduleReconnect() {
+    if (!navigator.onLine) {
+      return;
+    }
+
+    if (this.connectAttempts >= this.connectMaxAttempts) {
+      console.log("[WebSocket] Max reconnection attempts reached");
+      return;
+    }
+
+    if (this.connectTimer) {
+      window.clearTimeout(this.connectTimer);
+    }
+
+    this.connectTimer = window.setTimeout(() => {
+      if (navigator.onLine) {
+        this.incrementAttempts();
+        this.connect();
+      }
+    }, this.connectTimeout);
+  }
+
+  private cleanup() {
+    if (this.ws) {
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close(1000, "connection cleaned up");
+      }
+
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.onmessage = null;
+
+      this.ws = null;
+    }
+
+    if (this.connectTimer) {
+      window.clearTimeout(this.connectTimer);
+      this.connectTimer = null;
+    }
+  }
+
+  disconnect() {
+    console.log("[WebSocket] Disconnected");
+    this.notifyStatusChange();
+
+    this.cleanup();
+    this.resetAttempts();
+  }
+}
+
+export const wss = new WebSocketService();
+void wss.init();
