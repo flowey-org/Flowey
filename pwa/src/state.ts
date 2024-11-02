@@ -47,7 +47,10 @@ export class State {
 
   * [Symbol.iterator]() {
     for (const property in this) {
-      yield [this[property], property] as const;
+      const ref = this[property as keyof this];
+      if (ref && typeof ref === "object" && "value" in ref) {
+        yield [ref, property] as const;
+      }
     }
   }
 }
