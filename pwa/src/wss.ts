@@ -1,3 +1,5 @@
+import { watch } from "vue";
+
 import { state, store } from "@/store";
 
 export class WebSocketService {
@@ -13,6 +15,7 @@ export class WebSocketService {
   constructor() {
     this.ws = null;
     this.setupNetworkListeners();
+    this.setupWatchers();
   }
 
   async init() {
@@ -76,6 +79,14 @@ export class WebSocketService {
       this.notifyStatusChange();
       this.cleanup();
     });
+  }
+
+  private setupWatchers() {
+    for (const ref of state) {
+      watch(ref, () => {
+        this.ws?.send(JSON.stringify(state.values()));
+      });
+    }
   }
 
   connect() {
