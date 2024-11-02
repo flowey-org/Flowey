@@ -53,4 +53,14 @@ export class State {
       }
     }
   }
+
+  values() {
+    const object: Record<string, unknown> = {};
+
+    for (const [ref, property] of this) {
+      object[property] = ref.value;
+    }
+
+    return object;
+  }
 }
