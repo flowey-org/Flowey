@@ -45,6 +45,8 @@ export class State {
   username = ref("");
   isLoggedIn = ref(false);
 
+  version = ref(0);
+
   * [Symbol.iterator]() {
     for (const property in this) {
       const ref = this[property as keyof this];
