@@ -20,7 +20,6 @@ export class WebSocketService {
 
   async init() {
     await store.ready;
-    this.connect();
   }
 
   status() {
