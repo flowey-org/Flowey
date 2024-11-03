@@ -15,7 +15,7 @@ const isSubmitting = ref(false);
 const password = ref("");
 const errorMessage = ref("");
 
-const wsStatus = ref(wss.status());
+const wssStatus = ref(wss.status());
 
 function openModal() {
   isModalOpen.value = true;
@@ -127,7 +127,7 @@ async function handleLogout() {
 }
 
 function checkWsStatus() {
-  wsStatus.value = wss.status();
+  wssStatus.value = wss.status();
 }
 
 onMounted(() => {
@@ -157,7 +157,7 @@ onMounted(() => {
 
 <template>
   <Button
-    :class="(!isLoggedIn || wsStatus !== 'connected') && 'suggested'"
+    :class="(!isLoggedIn || wssStatus !== 'connected') && 'suggested'"
     @click="openModal"
   >
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -197,7 +197,7 @@ onMounted(() => {
         </template>
         <template v-else>
           <p>You're logged in as <em>{{ state.username.value }}</em>.</p>
-          <p>WebSocket status: <em>{{ wsStatus }}</em>.</p>
+          <p>WSS status: <em>{{ wssStatus }}</em>.</p>
           <form @submit.prevent="handleLogout">
             <div class="form-group">
               <label for="endpoint">Endpoint:</label>
