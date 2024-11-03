@@ -132,7 +132,8 @@ export class WebSocketService {
   }
 
   connect() {
-    const url = state.endpoint.value + "ws/";
+    const url = new URL(state.endpoint.value + "ws/");
+    url.protocol = url.protocol.replace("http", "ws");
 
     console.log("[WebSocket] Attempting to connect...", {
       reconnectAttempt: this.connectAttempts,
