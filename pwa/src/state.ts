@@ -43,7 +43,6 @@ export class State {
 
   endpoint = ref("");
   username = ref("");
-  isLoggedIn = ref(false);
 
   version = ref(0);
 

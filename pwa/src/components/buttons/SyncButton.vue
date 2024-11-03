@@ -9,9 +9,12 @@ import { state } from "@/store";
 import { wss } from "@/wss";
 
 const isModalOpen = ref(false);
+const isLoggedIn = ref(false);
+
 const isSubmitting = ref(false);
 const password = ref("");
 const errorMessage = ref("");
+
 const wsStatus = ref("Closed");
 
 function openModal() {
@@ -29,11 +32,11 @@ function checkLoginStatus() {
   for (const cookie of cookies) {
     if (cookie.startsWith("flowey_session_key_present")) {
       password.value = "";
-      state.isLoggedIn.value = true;
+      isLoggedIn.value = true;
       return;
     }
   }
-  state.isLoggedIn.value = false;
+  isLoggedIn.value = false;
 }
 
 async function handleSubmit() {
@@ -60,7 +63,7 @@ async function handleSubmit() {
 
   if (response.ok) {
     checkLoginStatus();
-    if (!state.isLoggedIn.value) {
+    if (!isLoggedIn.value) {
       errorMessage.value = "Login failed: no session key received.";
     }
   } else {
@@ -104,7 +107,7 @@ async function handleLogout() {
 
   if (response.ok) {
     checkLoginStatus();
-    if (state.isLoggedIn.value) {
+    if (isLoggedIn.value) {
       errorMessage.value = "Logout failed: session key is not invalidated.";
     }
   } else {
@@ -135,7 +138,7 @@ onMounted(() => {
     checkWsStatus();
   });
 
-  watch(state.isLoggedIn, (isLoggedIn) => {
+  watch(isLoggedIn, (isLoggedIn) => {
     if (isLoggedIn) {
       wss.connect();
     } else {
@@ -154,7 +157,7 @@ onMounted(() => {
 
 <template>
   <Button
-    :class="!state.isLoggedIn.value && 'suggested'"
+    :class="!isLoggedIn && 'suggested'"
     @click="openModal"
   >
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -174,7 +177,7 @@ onMounted(() => {
           <h2>Sync</h2>
           <CancelButton @click="closeModal" />
         </div>
-        <template v-if="!state.isLoggedIn.value">
+        <template v-if="!isLoggedIn">
           <form @submit.prevent="handleSubmit">
             <div class="form-group">
               <label for="endpoint">Endpoint:</label>
