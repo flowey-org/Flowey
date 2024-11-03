@@ -131,8 +131,15 @@ export class WebSocketService {
   }
 
   connect() {
-    const url = new URL(state.endpoint.value + "ws/");
-    url.protocol = url.protocol.replace("http", "ws");
+    let url: URL;
+
+    try {
+      url = new URL(state.endpoint.value + "ws/");
+      url.protocol = url.protocol.replace("http", "ws");
+    } catch {
+      console.error("[WebSocket] Invalid endpoint URL:", state.endpoint.value);
+      return;
+    }
 
     console.log("[WebSocket] Attempting to connect...", {
       reconnectAttempt: this.connectAttempts,
