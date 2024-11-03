@@ -96,6 +96,12 @@ func (handler *sessionHandler) handleOptions(writer http.ResponseWriter, _ *http
 }
 
 func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if origin := request.Header.Get("Origin"); origin != "" {
+		writer.Header().Set("Access-Control-Allow-Origin", origin)
+		writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	}
+	writer.Header().Set("Vary", "Origin")
+
 	switch request.Method {
 	case http.MethodPost:
 		handler.handlePost(writer, request)
