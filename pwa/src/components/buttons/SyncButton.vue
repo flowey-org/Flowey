@@ -15,7 +15,7 @@ const isSubmitting = ref(false);
 const password = ref("");
 const errorMessage = ref("");
 
-const wsStatus = ref("Closed");
+const wsStatus = ref(wss.status());
 
 function openModal() {
   isModalOpen.value = true;
