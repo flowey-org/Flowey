@@ -89,12 +89,20 @@ func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request 
 	writer.WriteHeader(http.StatusOK)
 }
 
+func (handler *sessionHandler) handleOptions(writer http.ResponseWriter, _ *http.Request) {
+	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	writer.Header().Set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS")
+	writer.WriteHeader(http.StatusOK)
+}
+
 func (handler *sessionHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case http.MethodPost:
 		handler.handlePost(writer, request)
 	case http.MethodDelete:
 		handler.handleDelete(writer, request)
+	case http.MethodOptions:
+		handler.handleOptions(writer, request)
 	default:
 		writer.WriteHeader(http.StatusMethodNotAllowed)
 	}
