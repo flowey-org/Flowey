@@ -151,6 +151,7 @@ export class WebSocketService {
         this.notifyStatusChange();
 
         this.resetAttempts();
+        this.sendUpdate();
       };
 
       this.ws.onclose = (event) => {
