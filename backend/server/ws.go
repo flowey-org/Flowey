@@ -19,7 +19,7 @@ type connection struct {
 	request *http.Request
 }
 
-func (connection *connection) handleFrame(ctx context.Context, userID db.UserID) error {
+func (connection *connection) handleFrame(ctx context.Context, userID db.UserID, connections *connections) error {
 	messageType, message, err := connection.Read(ctx)
 	if err != nil {
 		var closeError websocket.CloseError
@@ -44,9 +44,10 @@ func (connection *connection) handleFrame(ctx context.Context, userID db.UserID)
 	}
 
 	if push {
-		if err := connection.Write(ctx, websocket.MessageText, []byte(stateString)); err != nil {
-			log.Println(err)
-			return nil
+		for connection := range connections.get(userID) {
+			if err := connection.Write(ctx, websocket.MessageText, []byte(stateString)); err != nil {
+				log.Println(err)
+			}
 		}
 	}
 
@@ -66,6 +67,18 @@ type connections struct {
 
 func newConnections() connections {
 	return connections{dict: make(map[db.UserID]userConnections)}
+}
+
+func (connections *connections) get(userID db.UserID) userConnections {
+	connections.mutex.RLock()
+	defer connections.mutex.RUnlock()
+
+	userConnections, ok := connections.dict[userID]
+	if !ok {
+		return nil
+	}
+
+	return userConnections
 }
 
 func (connections *connections) store(userID db.UserID, connection *connection) {
@@ -135,7 +148,7 @@ func (handler *wsHandler) handle(userID db.UserID, writer http.ResponseWriter, r
 
 	ctx := context.Background()
 	for {
-		err := connection.handleFrame(ctx, userID)
+		err := connection.handleFrame(ctx, userID, &handler.connections)
 		if err != nil {
 			return err
 		}
