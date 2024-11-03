@@ -81,10 +81,52 @@ export class WebSocketService {
     });
   }
 
+  private sendUpdate() {
+    const clientState = state.values();
+
+    let clientStateString;
+    try {
+      clientStateString = JSON.stringify(clientState);
+    } catch (error) {
+      console.error("[WebSocket] Failed to stringify update:", error);
+      return;
+    }
+
+    this.ws?.send(clientStateString);
+  }
+
+  private receiveUpdate(data: unknown) {
+    if (data == null || typeof data !== "string") {
+      return;
+    }
+
+    const serverStateString = data;
+
+    let serverState;
+    try {
+      serverState = JSON.parse(serverStateString) as Record<string, unknown>;
+    } catch (error) {
+      console.error("[WebSocket] Failed to parse update:", error);
+      serverState = { version: 0 };
+    }
+
+    if (!("version" in serverState)) {
+      serverState["version"] = 0;
+    }
+
+    const version = serverState["version"];
+    if (version == state.version.value) {
+      return;
+    }
+
+    console.log("[WebSocket] Applying update: ", serverState);
+    state.apply(serverState);
+  }
+
   private setupWatchers() {
     for (const ref of state) {
       watch(ref, () => {
-        this.ws?.send(JSON.stringify(state.values()));
+        this.sendUpdate();
       });
     }
   }
@@ -129,7 +171,7 @@ export class WebSocketService {
       };
 
       this.ws.onmessage = (event) => {
-        console.log("[WebSocket] Received message: ", event.data);
+        this.receiveUpdate(event.data);
       };
     } catch (error) {
       console.error("[WebSocket] Connection error:", error);
