@@ -19,7 +19,7 @@ type connection struct {
 	request *http.Request
 }
 
-func (connection *connection) handleFrame(ctx context.Context) error {
+func (connection *connection) handleFrame(ctx context.Context, userID db.UserID) error {
 	messageType, message, err := connection.Read(ctx)
 	if err != nil {
 		var closeError websocket.CloseError
@@ -33,8 +33,22 @@ func (connection *connection) handleFrame(ctx context.Context) error {
 		return err
 	}
 
-	_ = messageType
-	_ = message
+	if messageType != websocket.MessageText {
+		return nil
+	}
+
+	push, stateString, err := db.ChooseState(userID, string(message))
+	if err != nil {
+		log.Println("failed to choose state: ", err)
+		return nil
+	}
+
+	if push {
+		if err := connection.Write(ctx, websocket.MessageText, []byte(stateString)); err != nil {
+			log.Println(err)
+			return nil
+		}
+	}
 
 	return nil
 }
@@ -121,7 +135,7 @@ func (handler *wsHandler) handle(userID db.UserID, writer http.ResponseWriter, r
 
 	ctx := context.Background()
 	for {
-		err := connection.handleFrame(ctx)
+		err := connection.handleFrame(ctx, userID)
 		if err != nil {
 			return err
 		}
