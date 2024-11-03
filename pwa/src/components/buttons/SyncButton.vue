@@ -5,7 +5,7 @@ import Button from "@/components/Button.vue";
 
 import CancelButton from "@/components/buttons/CancelButton.vue";
 
-import { state } from "@/store";
+import { state, store } from "@/store";
 import { wss } from "@/wss";
 
 const isModalOpen = ref(false);
@@ -130,13 +130,8 @@ function checkWsStatus() {
   wssStatus.value = wss.status();
 }
 
-onMounted(() => {
-  checkLoginStatus();
-  checkWsStatus();
-
-  wss.onStatusChange(() => {
-    checkWsStatus();
-  });
+onMounted(async () => {
+  await store.ready;
 
   watch(isLoggedIn, (isLoggedIn) => {
     if (isLoggedIn) {
@@ -152,6 +147,13 @@ onMounted(() => {
       checkWsStatus();
     }
   });
+
+  wss.onStatusChange(() => {
+    checkWsStatus();
+  });
+
+  checkLoginStatus();
+  checkWsStatus();
 });
 </script>
 
