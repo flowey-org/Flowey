@@ -65,4 +65,12 @@ export class State {
 
     return object;
   }
+
+  apply(object: Record<string, unknown>) {
+    for (const [ref, property] of this) {
+      if (property in object) {
+        ref.value = object[property];
+      }
+    }
+  }
 }
