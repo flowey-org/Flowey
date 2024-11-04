@@ -35,7 +35,7 @@ class MaxTime {
   }
 }
 
-export class State {
+class State {
   buff = new Buff();
   isReverseOn = ref(false);
   maxTime = new MaxTime();
@@ -73,3 +73,5 @@ export class State {
     }
   }
 }
+
+export const state = new State();

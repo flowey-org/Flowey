@@ -1,6 +1,6 @@
 import { watch } from "vue";
 
-import { State } from "@/state";
+import { state } from "@/state";
 
 class Database {
   dbName = "flowey";
@@ -89,7 +89,6 @@ class AuthStore {
 
 class StateStore {
   storeName = "state";
-  state: State = new State();
   ready = this.init();
 
   async init() {
@@ -105,7 +104,7 @@ class StateStore {
 
       let pending = 0;
 
-      for (const [ref, property] of this.state) {
+      for (const [ref, property] of state) {
         pending++;
 
         const request = store.get(property);
@@ -130,7 +129,7 @@ class StateStore {
   }
 
   private setupWatchers() {
-    for (const [ref, property] of this.state) {
+    for (const [ref, property] of state) {
       watch(ref, () => {
         void this.putState(ref.value, property);
       });
@@ -155,6 +154,4 @@ class StateStore {
 }
 
 export const stateStore = new StateStore();
-export const state = stateStore.state;
-
 export const authStore = new AuthStore();

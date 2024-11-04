@@ -3,7 +3,7 @@ defineEmits<{ click: [] }>();
 
 import Button from "@/components/Button.vue";
 
-import { state } from "@/store";
+import { state } from "@/state";
 </script>
 
 <template>

@@ -5,7 +5,8 @@ import Button from "@/components/Button.vue";
 
 import CancelButton from "@/components/buttons/CancelButton.vue";
 
-import { state, stateStore } from "@/store";
+import { state } from "@/state";
+import { stateStore } from "@/store";
 import { wss } from "@/wss";
 
 const isModalOpen = ref(false);

@@ -5,7 +5,7 @@ import { computed } from "vue";
 
 import Button from "@/components/Button.vue";
 
-import { state } from "@/store";
+import { state } from "@/state";
 
 const text = computed(() => {
   return `${state.buff.value.toFixed(2)}x`;

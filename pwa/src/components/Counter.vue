@@ -16,7 +16,7 @@ import StartButton from "@/components/buttons/StartButton.vue";
 import StopButton from "@/components/buttons/StopButton.vue";
 import SyncButton from "@/components/buttons/SyncButton.vue";
 
-import { state } from "@/store";
+import { state } from "@/state";
 import { formatSeconds } from "@/utils";
 
 const nowTime = ref(Date.now());

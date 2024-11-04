@@ -1,6 +1,7 @@
 import { watch } from "vue";
 
-import { state, stateStore } from "@/store";
+import { state } from "@/state";
+import { stateStore } from "@/store";
 
 export class WebSocketService {
   ws: WebSocket | null;
