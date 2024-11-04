@@ -6,7 +6,7 @@ import Button from "@/components/Button.vue";
 import CancelButton from "@/components/buttons/CancelButton.vue";
 
 import { state } from "@/state";
-import { stateStore } from "@/store";
+import { authStore, stateStore } from "@/store";
 import { wss } from "@/wss";
 
 const isModalOpen = ref(false);
@@ -28,19 +28,17 @@ function closeModal() {
   errorMessage.value = "";
 }
 
-function checkLoginStatus() {
-  const cookies = document.cookie.split(";");
-  for (const cookie of cookies) {
-    if (cookie.startsWith("flowey_session_key_present")) {
-      password.value = "";
-      isLoggedIn.value = true;
-      return;
-    }
+async function checkLoginStatus() {
+  try {
+    const sessionToken = await authStore.getSessionToken();
+    isLoggedIn.value = !!sessionToken;
+  } catch (error) {
+    console.error(error);
+    isLoggedIn.value = false;
   }
-  isLoggedIn.value = false;
 }
 
-async function handleSubmit() {
+async function handleLogin() {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
   errorMessage.value = "";
@@ -54,7 +52,6 @@ async function handleSubmit() {
         username: state.username.value,
         password: password.value,
       }),
-      credentials: "include",
     });
   } catch {
     errorMessage.value = "Login failed: refused to connect to the endpoint.";
@@ -63,9 +60,21 @@ async function handleSubmit() {
   }
 
   if (response.ok) {
-    checkLoginStatus();
+    {
+      let body: unknown;
+      try {
+        body = await response.json();
+      } catch {
+        errorMessage.value = "Login failed: failed to parse the response.";
+      }
+      if (body && typeof body == "object" && "sessionToken" in body && typeof body.sessionToken == "string") {
+        await authStore.putSessionToken(body.sessionToken);
+      }
+    }
+
+    await checkLoginStatus();
     if (!isLoggedIn.value) {
-      errorMessage.value = "Login failed: no session key received.";
+      errorMessage.value = "Login failed: no session token received.";
     }
   } else {
     switch (response.status) {
@@ -94,34 +103,23 @@ async function handleLogout() {
   isSubmitting.value = true;
   errorMessage.value = "";
 
-  let response: Response;
+  const sessionToken = await authStore.getSessionToken();
+
   try {
-    response = await fetch(state.endpoint.value + "session/", {
+    await fetch(state.endpoint.value + "session/", {
       method: "DELETE",
-      credentials: "include",
+      headers: { Authorization: `Bearer ${sessionToken}` },
     });
   } catch {
     errorMessage.value = "Logout failed: refused to connect to the endpoint.";
     isSubmitting.value = false;
-    return;
   }
 
-  if (response.ok) {
-    checkLoginStatus();
-    if (isLoggedIn.value) {
-      errorMessage.value = "Logout failed: session key is not invalidated.";
-    }
-  } else {
-    switch (response.status) {
-      case 404:
-        errorMessage.value = "Login failed: couldn't reach the endpoint.";
-        break;
-      case 500:
-        errorMessage.value = "Login failed: internal server error.";
-        break;
-      default:
-        errorMessage.value = "Login failed: unexpected response.";
-    }
+  await authStore.deleteSessionToken();
+
+  await checkLoginStatus();
+  if (isLoggedIn.value) {
+    errorMessage.value = "Logout failed: session token is not invalidated.";
   }
 
   isSubmitting.value = false;
@@ -142,9 +140,9 @@ onMounted(async () => {
     }
   });
 
-  watch(isModalOpen, (isOpen) => {
+  watch(isModalOpen, async (isOpen) => {
     if (isOpen) {
-      checkLoginStatus();
+      await checkLoginStatus();
       checkWsStatus();
     }
   });
@@ -153,7 +151,7 @@ onMounted(async () => {
     checkWsStatus();
   });
 
-  checkLoginStatus();
+  await checkLoginStatus();
   checkWsStatus();
 });
 </script>
@@ -181,7 +179,7 @@ onMounted(async () => {
           <CancelButton @click="closeModal" />
         </div>
         <template v-if="!isLoggedIn">
-          <form @submit.prevent="handleSubmit">
+          <form @submit.prevent="handleLogin">
             <div class="form-group">
               <label for="endpoint">Endpoint:</label>
               <input id="endpoint" v-model="state.endpoint.value" type="url" required>
