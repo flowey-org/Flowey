@@ -3,10 +3,9 @@ import { watch } from "vue";
 import { State } from "@/state";
 
 const IDB_NAME = "flowey";
-const OBJECT_STORE_NAME = "state";
 
-class Store {
-  idb: IDBDatabase | null = null;
+class StateStore {
+  storeName = "state";
   state: State = new State();
 
   ready: Promise<void>;
@@ -19,74 +18,96 @@ class Store {
   }
 
   async init() {
-    this.idb = await this.openIndexedBD();
+    await this.loadState();
 
     for (const [ref, property] of this.state) {
       watch(ref, () => {
-        this.put(ref.value, property);
+        void this.putState(ref.value, property);
       });
     }
   };
 
-  put(value: unknown, property: string) {
-    this.idb!
-      .transaction(OBJECT_STORE_NAME, "readwrite")
-      .objectStore(OBJECT_STORE_NAME)
-      .put(value, property);
-  }
-
-  private async openIndexedBD() {
-    return new Promise<IDBDatabase>((resolve) => {
-      const request = window.indexedDB.open(IDB_NAME);
+  private async openDB() {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(IDB_NAME);
 
       request.onupgradeneeded = (event) => {
-        const idb = (event.target as IDBOpenDBRequest).result;
-        const objectStore = idb.createObjectStore(OBJECT_STORE_NAME);
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          const store = db.createObjectStore(this.storeName);
 
-        objectStore.transaction.oncomplete = () => {
-          const objectStore = idb
-            .transaction(OBJECT_STORE_NAME, "readwrite")
-            .objectStore(OBJECT_STORE_NAME);
+          store.transaction.oncomplete = () => {
+            const transaction = db.transaction(this.storeName, "readwrite");
+            const store = transaction.objectStore(this.storeName);
 
-          for (const [ref, property] of this.state) {
-            objectStore.put(ref.value, property);
-          }
-        };
-      };
-
-      request.onsuccess = (event) => {
-        const idb = (event.target as IDBOpenDBRequest).result;
-        const objectStore = idb
-          .transaction(OBJECT_STORE_NAME, "readonly")
-          .objectStore(OBJECT_STORE_NAME);
-
-        let pending = 0;
-
-        for (const [ref, property] of this.state) {
-          pending++;
-
-          objectStore.get(property).onsuccess = (event) => {
-            const value: unknown = (event.target as IDBRequest).result;
-            if (value !== undefined && typeof value === typeof ref.value) {
-              ref.value = value as typeof ref.value;
-            } else {
-              this.put(ref.value, property);
-            }
-
-            pending--;
-            if (pending === 0) {
-              this.resolveReady();
+            for (const [ref, property] of this.state) {
+              store.put(ref.value, property);
             }
           };
         }
+      };
 
-        resolve(idb);
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to open a connection`));
+      };
+    });
+  }
+
+  private async loadState() {
+    const db = await this.openDB();
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, "readonly");
+      const store = transaction.objectStore(this.storeName);
+
+      let pending = 0;
+
+      for (const [ref, property] of this.state) {
+        const request = store.get(property);
+        pending++;
+
+        request.onsuccess = () => {
+          const value: unknown = request.result;
+          if (value !== undefined && typeof value === typeof ref.value) {
+            ref.value = value;
+          } else {
+            void this.putState(ref.value, property);
+          }
+
+          pending--;
+          if (pending === 0) {
+            this.resolveReady();
+          }
+        };
+        request.onerror = () => {
+          reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to get state`));
+        };
+      }
+
+      resolve();
+    });
+  }
+
+  private async putState(value: unknown, property: string) {
+    const db = await this.openDB();
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, "readwrite");
+      const store = transaction.objectStore(this.storeName);
+      const request = store.put(value, property);
+
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to put state`));
       };
     });
   }
 }
 
-export const store = new Store();
-void store.init();
+export const stateStore = new StateStore();
+void stateStore.init();
 
-export const state = store.state;
+export const state = stateStore.state;

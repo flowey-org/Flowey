@@ -5,7 +5,7 @@ import Button from "@/components/Button.vue";
 
 import CancelButton from "@/components/buttons/CancelButton.vue";
 
-import { state, store } from "@/store";
+import { state, stateStore } from "@/store";
 import { wss } from "@/wss";
 
 const isModalOpen = ref(false);
@@ -131,7 +131,7 @@ function checkWsStatus() {
 }
 
 onMounted(async () => {
-  await store.ready;
+  await stateStore.ready;
 
   watch(isLoggedIn, (isLoggedIn) => {
     if (isLoggedIn) {

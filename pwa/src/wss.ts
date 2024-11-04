@@ -1,6 +1,6 @@
 import { watch } from "vue";
 
-import { state, store } from "@/store";
+import { state, stateStore } from "@/store";
 
 export class WebSocketService {
   ws: WebSocket | null;
@@ -19,7 +19,7 @@ export class WebSocketService {
   }
 
   async init() {
-    await store.ready;
+    await stateStore.ready;
   }
 
   status() {
