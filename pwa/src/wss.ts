@@ -237,6 +237,8 @@ export class WebSocketService {
       window.clearTimeout(this.connectTimer);
       this.connectTimer = null;
     }
+
+    this.notifyStatusChange();
   }
 
   disconnect() {
