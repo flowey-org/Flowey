@@ -133,6 +133,10 @@ export class WebSocketService {
   }
 
   connect() {
+    if (!navigator.onLine) {
+      return;
+    }
+
     let url: URL;
 
     try {
