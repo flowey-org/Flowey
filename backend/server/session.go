@@ -4,13 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 
 	"flowey/db"
-)
-
-const (
-	sessionKeyCookieName        = "flowey_session_key"
-	sessionKeyPresentCookieName = "flowey_session_key_present"
 )
 
 type sessionHandler struct{}
@@ -38,54 +34,35 @@ func (handler *sessionHandler) handlePost(writer http.ResponseWriter, request *h
 		return
 	}
 
-	sessionKey, err := db.CreateSessionKey(userID)
+	sessionToken, err := db.CreateSessionToken(userID)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	http.SetCookie(writer, &http.Cookie{
-		Name:     sessionKeyCookieName,
-		Value:    sessionKey,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		MaxAge:   34560000,
-	})
-	http.SetCookie(writer, &http.Cookie{
-		Name:     sessionKeyPresentCookieName,
-		Value:    "true",
-		Path:     "/",
-		HttpOnly: false,
-		Secure:   true,
-		MaxAge:   34560000,
-	})
-	writer.WriteHeader(http.StatusOK)
+	type loginResponse struct {
+		SessionToken string `json:"sessionToken"`
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(loginResponse{sessionToken})
 }
 
 func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request *http.Request) {
-	cookie, err := request.Cookie("flowey_session_key")
-
-	if err == nil {
-		db.DeleteSessionKey(cookie.Value)
+	authHeader := request.Header.Get("Authorization")
+	if authHeader == "" {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
-	http.SetCookie(writer, &http.Cookie{
-		Name:     sessionKeyCookieName,
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		MaxAge:   -1,
-	})
-	http.SetCookie(writer, &http.Cookie{
-		Name:     sessionKeyPresentCookieName,
-		Value:    "",
-		Path:     "/",
-		HttpOnly: false,
-		Secure:   true,
-		MaxAge:   -1,
-	})
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := parts[1]
+	db.DeleteSessionToken(sessionToken)
+
 	writer.WriteHeader(http.StatusOK)
 }
 

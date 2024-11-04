@@ -43,7 +43,7 @@ func Validate(path string) error {
 			{cid: 2, name: "password", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 0},
 		},
 		"sessions": {
-			{cid: 0, name: "session_key", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 1},
+			{cid: 0, name: "session_token", typeDef: "TEXT", notnull: 1, dflt_value: nil, pk: 1},
 			{cid: 1, name: "user_id", typeDef: "INTEGER", notnull: 1, dflt_value: nil, pk: 0},
 		},
 		"states": {
@@ -86,7 +86,7 @@ func Init(path string) error {
   password TEXT NOT NULL
 );
 CREATE TABLE sessions(
-  session_key TEXT NOT NULL PRIMARY KEY,
+  session_token TEXT NOT NULL PRIMARY KEY,
   user_id INTEGER NOT NULL
 );
 CREATE TABLE states(

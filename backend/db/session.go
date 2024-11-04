@@ -43,11 +43,11 @@ func AuthenticateByCredentials(credentials Credentials) (int, error) {
 	return userID, nil
 }
 
-func AuthenticateBySessionKey(sessionKey string) (int, error) {
+func AuthenticateBySessionToken(sessionToken string) (int, error) {
 	var userID UserID
 
-	query := `SELECT user_id FROM sessions WHERE session_key = ?`
-	err := db.QueryRow(query, sessionKey).Scan(&userID)
+	query := `SELECT user_id FROM sessions WHERE session_token = ?`
+	err := db.QueryRow(query, sessionToken).Scan(&userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return -1, Unathorized
@@ -59,30 +59,30 @@ func AuthenticateBySessionKey(sessionKey string) (int, error) {
 	return userID, nil
 }
 
-func CreateSessionKey(userID UserID) (string, error) {
-	byteSessionKey := make([]byte, 40)
-	if _, err := rand.Read(byteSessionKey); err != nil {
+func CreateSessionToken(userID UserID) (string, error) {
+	byteSessionToken := make([]byte, 40)
+	if _, err := rand.Read(byteSessionToken); err != nil {
 		log.Println(err)
-		return "", fmt.Errorf("failed to create a session key")
+		return "", fmt.Errorf("failed to create a session token")
 	}
-	sessionKey := base64.URLEncoding.EncodeToString(byteSessionKey)
+	sessionToken := base64.URLEncoding.EncodeToString(byteSessionToken)
 
-	query := `INSERT INTO sessions (session_key, user_id) VALUES (?, ?)`
-	_, err := db.Exec(query, sessionKey, userID)
+	query := `INSERT INTO sessions (session_token, user_id) VALUES (?, ?)`
+	_, err := db.Exec(query, sessionToken, userID)
 	if err != nil {
 		log.Println(err)
-		return "", fmt.Errorf("failed to store a session key")
+		return "", fmt.Errorf("failed to store a session token")
 	}
 
-	return sessionKey, nil
+	return sessionToken, nil
 }
 
-func DeleteSessionKey(sessionKey string) error {
-	query := `DELETE FROM sessions WHERE session_key = ?`
-	_, err := db.Exec(query, sessionKey)
+func DeleteSessionToken(sessionToken string) error {
+	query := `DELETE FROM sessions WHERE session_token = ?`
+	_, err := db.Exec(query, sessionToken)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return fmt.Errorf("failed to delete a session token")
 	}
 
 	return nil
