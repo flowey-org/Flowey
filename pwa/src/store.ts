@@ -107,7 +107,86 @@ class StateStore {
   }
 }
 
+class TokenStore {
+  storeName = "auth";
+
+  private async openDB() {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(IDB_NAME);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName);
+        }
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to open a connection`));
+      };
+    });
+  }
+
+  async putToken(token: string) {
+    const db = await this.openDB();
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, "readwrite");
+      const store = transaction.objectStore(this.storeName);
+      const request = store.put(token, "token");
+
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to put a token`));
+      };
+    });
+  }
+
+  async getToken() {
+    const db = await this.openDB();
+    return new Promise<string>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, "readonly");
+      const store = transaction.objectStore(this.storeName);
+      const request = store.get("token");
+
+      request.onsuccess = () => {
+        const value: unknown = request.result;
+        if (value !== undefined && typeof value === "string") {
+          resolve(value);
+        } else {
+          reject(new Error(`[IndexedDB] [${this.storeName}] Invalid token in the store`));
+        }
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to get a token`));
+      };
+    });
+  }
+
+  async deleteToken() {
+    const db = await this.openDB();
+    return new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, "readwrite");
+      const store = transaction.objectStore(this.storeName);
+      const request = store.delete("token");
+
+      request.onsuccess = () => {
+        resolve();
+      };
+      request.onerror = () => {
+        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to delete a token`));
+      };
+    });
+  }
+}
+
 export const stateStore = new StateStore();
 void stateStore.init();
 
 export const state = stateStore.state;
+
+export const tokenStore = new TokenStore();
