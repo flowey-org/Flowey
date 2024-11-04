@@ -91,7 +91,9 @@ export class WebSocketService {
       return;
     }
 
-    this.ws?.send(clientStateString);
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(clientStateString);
+    }
   }
 
   private receiveUpdate(data: unknown) {
