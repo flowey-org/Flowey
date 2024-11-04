@@ -67,7 +67,7 @@ func (handler *sessionHandler) handleDelete(writer http.ResponseWriter, request 
 }
 
 func (handler *sessionHandler) handleOptions(writer http.ResponseWriter, _ *http.Request) {
-	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	writer.Header().Set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS")
 	writer.WriteHeader(http.StatusOK)
 }
