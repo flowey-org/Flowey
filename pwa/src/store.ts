@@ -32,29 +32,32 @@ const database = new Database();
 
 class AuthStore {
   storeName = "auth";
+  sessionTokenKey = "sessionToken";
 
-  async putToken(token: string) {
+  async putSessionToken(sessionToken: string) {
     const db = await database.open();
     return new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(this.storeName, "readwrite");
       const store = transaction.objectStore(this.storeName);
-      const request = store.put(token, "token");
+      const request = store.put(sessionToken, this.sessionTokenKey);
 
       request.onsuccess = () => {
         resolve();
       };
       request.onerror = () => {
-        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to put a token`));
+        reject(new Error(
+          request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to put the session token`,
+        ));
       };
     });
   }
 
-  async getToken() {
+  async getSessionToken() {
     const db = await database.open();
     return new Promise<string>((resolve, reject) => {
       const transaction = db.transaction(this.storeName, "readonly");
       const store = transaction.objectStore(this.storeName);
-      const request = store.get("token");
+      const request = store.get(this.sessionTokenKey);
 
       request.onsuccess = () => {
         const value: unknown = request.result;
@@ -65,23 +68,27 @@ class AuthStore {
         }
       };
       request.onerror = () => {
-        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to get a token`));
+        reject(new Error(
+          request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to get the session token`,
+        ));
       };
     });
   }
 
-  async deleteToken() {
+  async deleteSessionToken() {
     const db = await database.open();
     return new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(this.storeName, "readwrite");
       const store = transaction.objectStore(this.storeName);
-      const request = store.delete("token");
+      const request = store.delete(this.sessionTokenKey);
 
       request.onsuccess = () => {
         resolve();
       };
       request.onerror = () => {
-        reject(new Error(request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to delete a token`));
+        reject(new Error(
+          request.error?.message ?? `[IndexedDB] [${this.storeName}] Failed to delete the session token`,
+        ));
       };
     });
   }
