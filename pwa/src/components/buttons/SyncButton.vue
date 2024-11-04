@@ -134,7 +134,7 @@ onMounted(async () => {
 
   watch(isLoggedIn, (isLoggedIn) => {
     if (isLoggedIn) {
-      wss.connect();
+      void wss.connect();
     } else {
       wss.disconnect();
     }

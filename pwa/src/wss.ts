@@ -1,7 +1,7 @@
 import { watch } from "vue";
 
 import { state } from "@/state";
-import { stateStore } from "@/store";
+import { authStore, stateStore } from "@/store";
 
 export class WebSocketService {
   ws: WebSocket | null;
@@ -71,7 +71,7 @@ export class WebSocketService {
     window.addEventListener("online", () => {
       console.log("[WebSocket] Network connection restored");
       this.resetAttempts();
-      this.connect();
+      void this.connect();
     });
 
     window.addEventListener("offline", () => {
@@ -133,13 +133,12 @@ export class WebSocketService {
     }
   }
 
-  connect() {
+  async connect() {
     if (!navigator.onLine) {
       return;
     }
 
     let url: URL;
-
     try {
       url = new URL(state.endpoint.value + "ws/");
       url.protocol = url.protocol.replace("http", "ws");
@@ -156,8 +155,10 @@ export class WebSocketService {
     });
     this.notifyStatusChange();
 
+    const sessionToken = await authStore.getSessionToken();
+
     try {
-      this.ws = new WebSocket(url, ["flowey"]);
+      this.ws = new WebSocket(url, ["flowey", sessionToken]);
 
       this.ws.onopen = () => {
         console.log("[Websocket] Connected");
@@ -214,7 +215,7 @@ export class WebSocketService {
     this.connectTimer = window.setTimeout(() => {
       if (navigator.onLine) {
         this.incrementAttempts();
-        this.connect();
+        void this.connect();
       }
     }, this.connectTimeout);
   }
