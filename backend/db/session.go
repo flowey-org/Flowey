@@ -65,7 +65,7 @@ func CreateSessionToken(userID UserID) (string, error) {
 		log.Println(err)
 		return "", fmt.Errorf("failed to create a session token")
 	}
-	sessionToken := base64.URLEncoding.EncodeToString(byteSessionToken)
+	sessionToken := base64.RawURLEncoding.EncodeToString(byteSessionToken)
 
 	query := `INSERT INTO sessions (session_token, user_id) VALUES (?, ?)`
 	_, err := db.Exec(query, sessionToken, userID)
