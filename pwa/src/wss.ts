@@ -203,6 +203,7 @@ export class WebSocketService {
 
     if (this.connectAttempts >= this.connectMaxAttempts) {
       console.log("[WebSocket] Max reconnection attempts reached");
+      this.cleanup();
       return;
     }
 
