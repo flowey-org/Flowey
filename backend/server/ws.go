@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/coder/websocket"
@@ -156,13 +157,17 @@ func (handler *wsHandler) handle(userID db.UserID, writer http.ResponseWriter, r
 }
 
 func (handler *wsHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	sessionKey, err := request.Cookie(sessionKeyCookieName)
-	if err != nil {
+	protocolsHeader := request.Header.Get("Sec-WebSocket-Protocol")
+	protocols := strings.Split(protocolsHeader, ", ")
+	if len(protocols) != 2 || protocols[0] != "flowey" {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	userID, err := db.AuthenticateBySessionKey(sessionKey.Value)
+	request.Header.Set("Sec-WebSocket-Protocol", protocols[0])
+	sessionToken := protocols[1]
+
+	userID, err := db.AuthenticateBySessionToken(sessionToken)
 	if err != nil {
 		switch err {
 		case db.Unathorized:
